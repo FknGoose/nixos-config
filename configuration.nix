@@ -35,6 +35,28 @@
   #   useXkbConfig = true; # use xkb.options in tty.
   # };
 
+  # Font settings
+  fonts = {
+    packages = with pkgs; [
+      inter
+      nerd-fonts.jetbrains-mono
+      liberation_ttf
+      noto-fonts-color-emoji
+      noto-fonts
+      corefonts
+    ];
+
+    fontconfig = {
+      enable = true;
+      defaultFonts = {
+        emoji = [ "Noto Color Emoji" ];
+        monospace = [ "JetBrainsMono Nerd Font Mono" ];
+        sans = [ "Liberation Serif" ];
+        sansSerif = [ "Inter" ];
+      };
+    };
+  };
+
   # Enable the X11 windowing system.
   services.xserver.enable = true;
   services.displayManager.sddm.enable = true;
