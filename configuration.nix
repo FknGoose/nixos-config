@@ -13,7 +13,12 @@
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.loader.systemd-boot.windows = { "Windows".efiDeviceHandle = "FS0"; };
+  boot.loader.systemd-boot.windows = {
+    "11-Pro" = {
+      efiDeviceHandle = "FS0";
+      sortKey = "a";
+    };
+  };
 
   networking.hostName = "nixos-x390"; # Define your hostname.
 
@@ -35,6 +40,7 @@
   #   useXkbConfig = true; # use xkb.options in tty.
   # };
 
+
   # Font settings
   fonts = {
     packages = with pkgs; [
@@ -51,7 +57,7 @@
       defaultFonts = {
         emoji = [ "Noto Color Emoji" ];
         monospace = [ "JetBrainsMono Nerd Font Mono" ];
-        sans = [ "Liberation Serif" ];
+        serif = [ "Liberation Serif" ];
         sansSerif = [ "Inter" ];
       };
     };
@@ -61,6 +67,10 @@
   services.xserver.enable = true;
   services.displayManager.sddm.enable = true;
   services.desktopManager.plasma6.enable = true;
+  services.xserver.xkb = {
+    layout = "us,ru";
+    options = "grp:alt_shift_toggle";
+  };
 
   nixpkgs.config.allowUnfree = true; #For propietary drivers
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
@@ -93,6 +103,7 @@
     packages = with pkgs; [
       tree
     ];
+    homeMode = "700";
     initialPassword = "1234";
   };
    
@@ -100,6 +111,8 @@
   # PROGRAMS
    programs.firefox.enable = true;
    programs.git.enable = true;
+   programs.throne.enable = true;
+   programs.throne.tunMode.enable = true;
 
   # List packages installed in system profile.
   # You can use https://search.nixos.org/ to find more packages (and options).
