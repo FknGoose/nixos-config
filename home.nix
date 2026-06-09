@@ -1,6 +1,9 @@
 { config, pkgs, ... }:
 
 {
+  imports = [
+    ./scripts.nix
+  ];
 
   home.username = "fkngoose";
   home.homeDirectory = "/home/fkngoose";
