@@ -53,7 +53,7 @@
     homeMode = "700";
     initialPassword = "1234"; # Don't forget to set a password with ‘passwd’
   };
-   
+
   # PROGRAMS
   programs.firefox.enable = true;
   programs.git.enable = true;
@@ -111,7 +111,7 @@
   # Enable the OpenSSH daemon.
   # services.openssh.enable = true;
   # services.tlp.enable = true;
-  
+
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];

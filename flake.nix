@@ -12,17 +12,17 @@
 
   outputs = inputs@{ self, nixpkgs, nixos-hardware, home-manager, ... }: {
     nixosConfigurations.nixos-x390 = nixpkgs.lib.nixosSystem {
-    	modules = [
-			./configuration.nix
-    		nixos-hardware.nixosModules.lenovo-thinkpad-x390
-    		home-manager.nixosModules.home-manager
-    		{
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              home-manager.extraSpecialArgs = { inherit inputs; };
-              home-manager.users.fkngoose = ./home.nix;
-    		}
-    	];
+      modules = [
+        ./configuration.nix
+        nixos-hardware.nixosModules.lenovo-thinkpad-x390
+        home-manager.nixosModules.home-manager
+        {
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+          home-manager.extraSpecialArgs = { inherit inputs; };
+          home-manager.users.fkngoose = ./home.nix;
+        }
+      ];
     };
 
   };

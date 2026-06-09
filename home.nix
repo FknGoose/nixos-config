@@ -46,6 +46,7 @@
     pkgs.htop
     pkgs.freerdp
     pkgs.wireproxy
+    pkgs.nixpkgs-fmt
   ];
 
   home.enableNixpkgsReleaseCheck = false;
