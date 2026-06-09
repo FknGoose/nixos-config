@@ -51,16 +51,6 @@
       noto-fonts
       corefonts
     ];
-
-    fontconfig = {
-      enable = true;
-      defaultFonts = {
-        emoji = [ "Noto Color Emoji" ];
-        monospace = [ "JetBrainsMono Nerd Font Mono" ];
-        serif = [ "Liberation Serif" ];
-        sansSerif = [ "Inter" ];
-      };
-    };
   };
 
   # Enable the X11 windowing system.

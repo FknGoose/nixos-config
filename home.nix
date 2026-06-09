@@ -7,15 +7,45 @@
 
   programs.git = {
     enable = true;
-    userName = "fkngoose";
-    userEmail = "busygose@gmail.com";
+    settings = {
+      user.name = "fkngoose";
+      user.email = "busygose@gmail.com";
+    };
   };
+
+  programs.ssh = {
+    enable = true;
+    enableDefaultConfig = false;
+    settings = {
+      "github.com" = {
+        HostName = "github.com";
+        User = "fkngoose";
+        IdentityFile = "~/.ssh/id_ed25519";
+      };
+    };
+  };
+
+
+  fonts.fontconfig = {
+    enable = true;
+    defaultFonts = {
+      emoji = [ "Noto Color Emoji" ];
+      monospace = [ "JetBrainsMono Nerd Font Mono" ];
+      serif = [ "Liberation Serif" ];
+      sansSerif = [ "Inter" ];
+    };
+    hinting = "slight";
+    subpixelRendering = "rgb";
+  };
+
 
   home.packages = [
     pkgs.htop
     pkgs.freerdp
     pkgs.wireproxy
   ];
+
+  home.enableNixpkgsReleaseCheck = false;
 
   # This value determines the Home Manager release that your
   # configuration is compatible with. This helps avoid breakage
