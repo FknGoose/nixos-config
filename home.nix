@@ -8,7 +8,7 @@
   programs.git = {
     enable = true;
     settings = {
-      user.name = "fkngoose";
+      user.name = "FknGoose";
       user.email = "busygose@gmail.com";
     };
   };
@@ -19,7 +19,7 @@
     settings = {
       "github.com" = {
         HostName = "github.com";
-        User = "fkngoose";
+        User = "git";
         IdentityFile = "~/.ssh/id_ed25519";
       };
     };
