@@ -17,6 +17,8 @@ in
 
       git add -A
 
+      CURRENT_DATE=$(date "+%Y-%m-%d %H:%M")
+
       if [ "$1" = "--amend" ]; then
           git commit --amend --no-edit || echo "No changes to amend"
 
@@ -24,7 +26,7 @@ in
           git commit --amend -m "$1" || echo "No changes to amend"
 
       else
-          COMMIT_MSG=''${1:-"deploy: $(date '+%Y-%m-%d %H:%M')"}
+          COMMIT_MSG=''${1:-"deploy: $CURRENT_DATE"}
           git commit -m "$COMMIT_MSG" || echo "No changes to commit"
       fi
 

@@ -1,9 +1,45 @@
 { config, pkgs, lib, inputs, ... }:
+let
+  mkNixPak = inputs.nixpak.lib.nixpak {
+    inherit (pkgs) lib;
+    inherit pkgs;
+  };
 
+  zen-sandbox = mkNixPak {
+    config = { sloth, ... }: {
+      app.package = inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.beta;
+      app.binPath = "bin/zen";
+      bubblewrap = {
+        network = true;
+        bind.rw = [
+          (sloth.concat' sloth.homeDir "/Downloads")
+          (sloth.mkdir (sloth.concat' sloth.homeDir "/.config/zen"))
+        ];
+        bind.dev = [
+          "/dev/dri"
+          "/dev/video0"
+          "/dev/video1"
+        ];
+      };
+      flatpak.appId = "app.zen_browser.Zen";
+      dbus.enable = true;
+      dbus.policies = {
+        "org.freedesktop.DBus" = "talk";
+        "org.freedesktop.Notifications" = "talk";
+      };
+    };
+  };
+
+  myZenPackage = zen-sandbox.config.env // {
+    override = _: myZenPackage;
+    overrideAttrs = _: myZenPackage;
+  };
+in
 {
   imports = [
     ./scripts.nix
     inputs.agenix.homeManagerModules.default
+    inputs.zen-browser.homeModules.beta
   ];
 
   home.username = "fkngoose";
@@ -52,11 +88,23 @@
     subpixelRendering = "rgb";
   };
 
+  programs.zen-browser = {
+    enable = true;
+    package = myZenPackage;
+    policies = {
+      DisableTelemetry = true;
+      DisablePocket = true;
+      DisableAppUpdate = true;
+    };
+  };
+
   home.packages = [
     pkgs.htop
     pkgs.freerdp
     pkgs.wireproxy
     pkgs.nixpkgs-fmt
+    pkgs.bitwarden-desktop
+    pkgs.mattermost-desktop
   ];
 
   home.enableNixpkgsReleaseCheck = false;

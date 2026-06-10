@@ -13,9 +13,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.darwin.follows = "";
     };
+    zen-browser.url = "github:0xc000022070/zen-browser-flake";
+    nixpak = {
+      url = "github:nixpak/nixpak";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = inputs@{ self, nixpkgs, nixos-hardware, home-manager, agenix, ... }: {
+  outputs = inputs@{ self, nixpkgs, nixos-hardware, home-manager, agenix, nixpak, zen-browser, ... }: {
     nixosConfigurations.nixos-x390 = nixpkgs.lib.nixosSystem {
       modules = [
         ./configuration.nix
