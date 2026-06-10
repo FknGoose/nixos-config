@@ -104,7 +104,7 @@ in
     pkgs.wireproxy
     pkgs.nixpkgs-fmt
     pkgs.bitwarden-desktop
-    pkgs.mattermost-desktop
+    inputs.nixpkgs-mattermost.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mattermost-desktop
   ];
 
   home.enableNixpkgsReleaseCheck = false;

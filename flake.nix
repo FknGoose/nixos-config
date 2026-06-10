@@ -18,9 +18,10 @@
       url = "github:nixpak/nixpak";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixpkgs-mattermost.url = "github:nixos/nixpkgs/dd156a9d4fa76f3b4bb58529f72190226caf0100";
   };
 
-  outputs = inputs@{ self, nixpkgs, nixos-hardware, home-manager, agenix, nixpak, zen-browser, ... }: {
+  outputs = inputs@{ self, nixpkgs, nixos-hardware, home-manager, ... }: {
     nixosConfigurations.nixos-x390 = nixpkgs.lib.nixosSystem {
       modules = [
         ./configuration.nix
