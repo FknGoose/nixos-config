@@ -5,15 +5,55 @@ let
     inherit pkgs;
   };
 
+  zenWithPolicies = inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.beta.override {
+    extraPolicies = {
+      DisableTelemetry = true;
+      DisablePocket = true;
+      DisableAppUpdate = true;
+      OfferToSaveLogins = false;
+      PasswordManagerEnabled = false;
+      ExtensionSettings = {
+        "{446900e4-71c2-419f-a6a7-df9c091e268b}" = mkExtension "bitwarden-password-manager";
+        "addon@darkreader.org" = mkExtension "darkreader";
+        "enhancerforyoutube@maximerf.addons.mozilla.org" = mkExtension "enhancer-for-youtube";
+        "soundfixer@unrelenting.technology" = mkExtension "soundfixer";
+        "sponsorBlocker@ajay.app" = mkExtension "sponsorblock";
+        "uBlock0@raymondhill.net" = mkExtension "ublock-origin";
+      };
+    };
+  };
+
+
   zen-sandbox = mkNixPak {
     config = { sloth, ... }: {
-      app.package = inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.beta;
+      app.package = zenWithPolicies;
       app.binPath = "bin/zen";
       bubblewrap = {
         network = true;
         bind.rw = [
           (sloth.concat' sloth.homeDir "/Downloads")
           (sloth.mkdir (sloth.concat' sloth.homeDir "/.config/zen"))
+          "/dev/shm"
+          (sloth.concat [ (sloth.env "XDG_RUNTIME_DIR") "/pulse" ])
+          (sloth.concat [ (sloth.env "XDG_RUNTIME_DIR") "/pipewire-0" ])
+        ];
+        bind.ro = [
+          "/etc/passwd"
+          "/etc/fonts"
+          "/etc/ssl/certs"
+          "/etc/static/ssl/certs"
+          "/run/current-system/sw/share/themes"
+          "/run/current-system/sw/share/hunspell"
+          "/run/current-system/sw/share/mime"
+          "/run/current-system/sw/share/icons"
+          "/tmp/.X11-unix"
+          "/run/opengl-driver"
+          "/run/opengl-driver-32"
+          (sloth.concat' sloth.homeDir "/.config/gtk-3.0")
+          (sloth.concat' sloth.homeDir "/.config/dconf")
+          (sloth.concat' sloth.homeDir "/.Xauthority")
+          (sloth.env "XAUTHORITY")
+          "/sys"
         ];
         bind.dev = [
           "/dev/dri"
@@ -26,6 +66,9 @@ let
       dbus.policies = {
         "org.freedesktop.DBus" = "talk";
         "org.freedesktop.Notifications" = "talk";
+        "org.freedesktop.portal.Desktop" = "talk";
+        "org.freedesktop.portal.Documents" = "talk";
+        "org.freedesktop.portal.FileChooser" = "talk";
       };
     };
   };
@@ -33,6 +76,11 @@ let
   myZenPackage = zen-sandbox.config.env // {
     override = _: myZenPackage;
     overrideAttrs = _: myZenPackage;
+  };
+
+  mkExtension = pluginId: {
+    install_url = "https://addons.mozilla.org/firefox/downloads/latest/${pluginId}/latest.xpi";
+    installation_mode = "force_installed";
   };
 
   balsa-sandbox = mkNixPak {
@@ -91,8 +139,8 @@ in
 {
   imports = [
     ./scripts.nix
+    ./zen.nix
     inputs.agenix.homeManagerModules.default
-    inputs.zen-browser.homeModules.beta
   ];
 
   home.username = "fkngoose";
@@ -100,11 +148,13 @@ in
 
   programs.git = {
     enable = true;
-    settings = {
-      user.name = "FknGoose";
-      user.email = "busygose@gmail.com";
+    settings.user = {
+      name = "FknGoose";
+      email = "busygose@gmail.com";
     };
   };
+
+  programs.zen-browser.package = myZenPackage;
 
   programs.ssh = {
     enable = true;
@@ -139,16 +189,6 @@ in
     };
     hinting = "slight";
     subpixelRendering = "rgb";
-  };
-
-  programs.zen-browser = {
-    enable = true;
-    package = myZenPackage;
-    policies = {
-      DisableTelemetry = true;
-      DisablePocket = true;
-      DisableAppUpdate = true;
-    };
   };
 
   home.packages = [
