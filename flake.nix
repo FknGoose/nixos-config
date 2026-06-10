@@ -19,6 +19,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nixpkgs-mattermost.url = "github:nixos/nixpkgs/dd156a9d4fa76f3b4bb58529f72190226caf0100";
+    yukigram.url = "github:yukigram/yukigram/release";
   };
 
   outputs = inputs@{ self, nixpkgs, nixos-hardware, home-manager, ... }: {

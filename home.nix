@@ -105,6 +105,7 @@ in
     pkgs.nixpkgs-fmt
     pkgs.bitwarden-desktop
     inputs.nixpkgs-mattermost.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mattermost-desktop
+    inputs.yukigram.packages.${pkgs.stdenv.hostPlatform.system}.nixpak
   ];
 
   home.enableNixpkgsReleaseCheck = false;

@@ -241,6 +241,7 @@
         "nixpak": "nixpak",
         "nixpkgs": "nixpkgs_2",
         "nixpkgs-mattermost": "nixpkgs-mattermost",
+        "yukigram": "yukigram",
         "zen-browser": "zen-browser"
       }
     },
@@ -256,6 +257,22 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "yukigram": {
+      "locked": {
+        "lastModified": 1779810755,
+        "narHash": "sha256-UfuYYss48MRs1WgwMgHaCqdeNLfGLD6fLhtEa3qe7to=",
+        "owner": "yukigram",
+        "repo": "yukigram",
+        "rev": "9f926ae0e297197056d3ab0606fb9a94d7884a6f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "yukigram",
+        "ref": "release",
+        "repo": "yukigram",
         "type": "github"
       }
     },
