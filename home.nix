@@ -34,6 +34,31 @@ let
     override = _: myZenPackage;
     overrideAttrs = _: myZenPackage;
   };
+
+  geary-sandbox = mkNixPak {
+    config = { sloth, ... }: {
+      app.package = pkgs.geary;
+      app.binPath = "bin/geary";
+      flatpak.appId = "org.gnome.Geary";
+      dbus.enable = true;
+      dbus.policies = {
+        "org.freedesktop.DBus" = "talk";
+        "org.freedesktop.Notifications" = "talk";
+        "org.freedesktop.secrets" = "talk";
+        "org.freedesktop.portal.Desktop" = "talk";
+        "org.freedesktop.portal.Documents" = "talk";
+      };
+      bubblewrap = {
+        network = true;
+        bind.rw = [
+          (sloth.mkdir (sloth.concat' sloth.homeDir "/.config/geary"))
+          (sloth.mkdir (sloth.concat' sloth.homeDir "/.local/share/geary"))
+          (sloth.mkdir (sloth.concat' sloth.homeDir "/.cache/geary"))
+        ];
+        bind.dev = [ "/dev/dri" ];
+      };
+    };
+  };
 in
 {
   imports = [
@@ -106,6 +131,7 @@ in
     pkgs.bitwarden-desktop
     inputs.nixpkgs-mattermost.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mattermost-desktop
     inputs.yukigram.packages.${pkgs.stdenv.hostPlatform.system}.nixpak
+    geary-sandbox.config.env
   ];
 
   home.enableNixpkgsReleaseCheck = false;
