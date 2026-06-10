@@ -47,6 +47,7 @@ let
         "org.freedesktop.secrets" = "talk";
         "org.freedesktop.portal.Desktop" = "talk";
         "org.freedesktop.portal.Documents" = "talk";
+        "org.gnome.Geary" = "own";
       };
       bubblewrap = {
         network = true;
@@ -54,8 +55,14 @@ let
           (sloth.mkdir (sloth.concat' sloth.homeDir "/.config/geary"))
           (sloth.mkdir (sloth.concat' sloth.homeDir "/.local/share/geary"))
           (sloth.mkdir (sloth.concat' sloth.homeDir "/.cache/geary"))
+          (sloth.concat [ (sloth.env "XDG_RUNTIME_DIR") "/" (sloth.env "WAYLAND_DISPLAY") ])
         ];
         bind.dev = [ "/dev/dri" ];
+        bind.ro = [
+          "/etc/fonts"
+          "/tmp/.X11-unix"
+          (sloth.concat' sloth.homeDir "/.Xauthority")
+        ];
       };
     };
   };
@@ -120,6 +127,20 @@ in
       DisableTelemetry = true;
       DisablePocket = true;
       DisableAppUpdate = true;
+    };
+  };
+
+  xdg.desktopEntries = {
+    "org.gnome.Geary" = {
+      name = "Geary";
+      exec = "geary %U";
+      icon = "org.gnome.Geary";
+      comment = "Send and receive email";
+      categories = [ "Network" "Email" ];
+      mimeType = [ "x-scheme-handler/mailto" ];
+      settings = {
+        StartupWMClass = "org.gnome.Geary";
+      };
     };
   };
 
