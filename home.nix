@@ -120,8 +120,8 @@ in
 {
   imports = [
     ./scripts.nix
-    ./zen.nix
     inputs.agenix.homeManagerModules.default
+    inputs.zen-browser.homeModules.beta
   ];
 
   home.username = "fkngoose";
@@ -134,9 +134,10 @@ in
       email = "busygose@gmail.com";
     };
   };
-
-  programs.zen-browser.package = myZenPackage;
-
+  programs.zen-browser = {
+    enable = true;
+    package = myZenPackage;
+  };
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
@@ -181,7 +182,6 @@ in
     inputs.nixpkgs-mattermost.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mattermost-desktop
     inputs.yukigram.packages.${pkgs.stdenv.hostPlatform.system}.nixpak
     balsa-sandbox.config.env
-    myZenPackage
   ];
 
   home.enableNixpkgsReleaseCheck = false;
