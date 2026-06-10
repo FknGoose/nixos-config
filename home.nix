@@ -5,35 +5,16 @@ let
     inherit pkgs;
   };
 
-  zenWithPolicies = inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.beta.override {
-    extraPolicies = {
-      DisableTelemetry = true;
-      DisablePocket = true;
-      DisableAppUpdate = true;
-      OfferToSaveLogins = false;
-      PasswordManagerEnabled = false;
-      ExtensionSettings = {
-        "{446900e4-71c2-419f-a6a7-df9c091e268b}" = mkExtension "bitwarden-password-manager";
-        "addon@darkreader.org" = mkExtension "darkreader";
-        "enhancerforyoutube@maximerf.addons.mozilla.org" = mkExtension "enhancer-for-youtube";
-        "soundfixer@unrelenting.technology" = mkExtension "soundfixer";
-        "sponsorBlocker@ajay.app" = mkExtension "sponsorblock";
-        "uBlock0@raymondhill.net" = mkExtension "ublock-origin";
-      };
-    };
-  };
-
-
   zen-sandbox = mkNixPak {
     config = { sloth, ... }: {
-      app.package = zenWithPolicies;
+      app.package = inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.beta;
       app.binPath = "bin/zen";
       bubblewrap = {
         network = true;
         bind.rw = [
+          "/dev/shm"
           (sloth.concat' sloth.homeDir "/Downloads")
           (sloth.mkdir (sloth.concat' sloth.homeDir "/.config/zen"))
-          "/dev/shm"
           (sloth.concat [ (sloth.env "XDG_RUNTIME_DIR") "/pulse" ])
           (sloth.concat [ (sloth.env "XDG_RUNTIME_DIR") "/pipewire-0" ])
         ];
@@ -200,6 +181,7 @@ in
     inputs.nixpkgs-mattermost.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mattermost-desktop
     inputs.yukigram.packages.${pkgs.stdenv.hostPlatform.system}.nixpak
     balsa-sandbox.config.env
+    myZenPackage
   ];
 
   home.enableNixpkgsReleaseCheck = false;
