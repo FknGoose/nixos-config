@@ -8,9 +8,14 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    agenix = {
+      url = "github:ryantm/agenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.darwin.follows = "";
+    };
   };
 
-  outputs = inputs@{ self, nixpkgs, nixos-hardware, home-manager, ... }: {
+  outputs = inputs@{ self, nixpkgs, nixos-hardware, home-manager, agenix, ... }: {
     nixosConfigurations.nixos-x390 = nixpkgs.lib.nixosSystem {
       modules = [
         ./configuration.nix

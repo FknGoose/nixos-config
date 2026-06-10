@@ -1,8 +1,9 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, inputs, ... }:
 
 {
   imports = [
     ./scripts.nix
+    inputs.agenix.homeManagerModules.default
   ];
 
   home.username = "fkngoose";
@@ -23,11 +24,21 @@
       "github.com" = {
         HostName = "github.com";
         User = "git";
-        IdentityFile = "~/.ssh/id_ed25519";
+        IdentityFile = "${config.home.homeDirectory}/.ssh/id_ed25519";
       };
     };
   };
 
+  age = {
+    identityPaths = [ "${config.home.homeDirectory}/.ssh/id_ed25519" ];
+    secrets = {
+      subscription = {
+        file = ./secrets/subscription.age;
+        path = "${config.home.homeDirectory}/.config/Throne/config/groups/1.json";
+        mode = "600";
+      };
+    };
+  };
 
   fonts.fontconfig = {
     enable = true;
@@ -40,7 +51,6 @@
     hinting = "slight";
     subpixelRendering = "rgb";
   };
-
 
   home.packages = [
     pkgs.htop
