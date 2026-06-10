@@ -35,11 +35,13 @@ let
     overrideAttrs = _: myZenPackage;
   };
 
-  geary-sandbox = mkNixPak {
+  balsa-sandbox = mkNixPak {
     config = { sloth, ... }: {
-      app.package = pkgs.geary;
-      app.binPath = "bin/geary";
-      flatpak.appId = "org.gnome.Geary";
+      app.package = pkgs.balsa;
+      app.binPath = "bin/balsa";
+
+      flatpak.appId = "org.gnome.Balsa";
+
       dbus.enable = true;
       dbus.policies = {
         "org.freedesktop.DBus" = "talk";
@@ -47,22 +49,41 @@ let
         "org.freedesktop.secrets" = "talk";
         "org.freedesktop.portal.Desktop" = "talk";
         "org.freedesktop.portal.Documents" = "talk";
-        "org.gnome.Geary" = "own";
+        "org.desktop.Balsa" = "own";
+        "org.gnome.Balsa" = "own";
       };
+
       bubblewrap = {
         network = true;
         bind.rw = [
-          (sloth.mkdir (sloth.concat' sloth.homeDir "/.config/geary"))
-          (sloth.mkdir (sloth.concat' sloth.homeDir "/.local/share/geary"))
-          (sloth.mkdir (sloth.concat' sloth.homeDir "/.cache/geary"))
+          (sloth.mkdir (sloth.concat' sloth.homeDir "/.config/balsa"))
+          (sloth.mkdir (sloth.concat' sloth.homeDir "/.cache/balsa"))
+          (sloth.mkdir (sloth.concat' sloth.homeDir "/.local/state/balsa"))
+          (sloth.mkdir (sloth.concat' sloth.homeDir "/.local/share/org.desktop.Balsa"))
+          (sloth.mkdir (sloth.concat' sloth.homeDir "/mail"))
+          (sloth.concat' sloth.homeDir "/mailbox")
+          (sloth.mkdir (sloth.concat' sloth.homeDir "/.gnupg"))
           (sloth.concat [ (sloth.env "XDG_RUNTIME_DIR") "/" (sloth.env "WAYLAND_DISPLAY") ])
         ];
-        bind.dev = [ "/dev/dri" ];
         bind.ro = [
+          "/etc/passwd"
           "/etc/fonts"
+          "/etc/ssl/certs"
+          "/etc/static/ssl/certs"
+          "/run/current-system/sw/share/themes"
+          "/run/current-system/sw/share/hunspell"
+          "/run/current-system/sw/share/mime"
+          "/run/current-system/sw/share/icons"
+          "/etc/cups"
           "/tmp/.X11-unix"
+          "/run/opengl-driver"
+          (sloth.concat' sloth.homeDir "/.config/gtk-3.0")
+          (sloth.concat' sloth.homeDir "/.config/dconf")
           (sloth.concat' sloth.homeDir "/.Xauthority")
+          (sloth.env "XAUTHORITY")
+          "/sys"
         ];
+        bind.dev = [ "/dev/dri" ];
       };
     };
   };
@@ -130,20 +151,6 @@ in
     };
   };
 
-  xdg.desktopEntries = {
-    "org.gnome.Geary" = {
-      name = "Geary";
-      exec = "geary %U";
-      icon = "org.gnome.Geary";
-      comment = "Send and receive email";
-      categories = [ "Network" "Email" ];
-      mimeType = [ "x-scheme-handler/mailto" ];
-      settings = {
-        StartupWMClass = "org.gnome.Geary";
-      };
-    };
-  };
-
   home.packages = [
     pkgs.htop
     pkgs.freerdp
@@ -152,7 +159,7 @@ in
     pkgs.bitwarden-desktop
     inputs.nixpkgs-mattermost.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mattermost-desktop
     inputs.yukigram.packages.${pkgs.stdenv.hostPlatform.system}.nixpak
-    geary-sandbox.config.env
+    balsa-sandbox.config.env
   ];
 
   home.enableNixpkgsReleaseCheck = false;
