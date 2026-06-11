@@ -64,10 +64,21 @@ let
     overrideAttrs = _: myZenPackage;
   };
 
-  mkExtension = pluginId: {
-    install_url = "https://addons.mozilla.org/firefox/downloads/latest/${pluginId}/latest.xpi";
-    installation_mode = "force_installed";
-  };
+  myYukigram = (inputs.yukigram.d.${pkgs.stdenv.hostPlatform.system}.override (prev: {
+    nixpak.yukigram = prev.nixpak.yukigram.override {
+      customNixpakConfig = { sloth, ... }: {
+        bubblewrap = {
+          bind.rw = [
+            (sloth.concat' sloth.homeDir "/Downloads")
+          ];
+          env = {
+            QT_USE_PORTAL = "0";
+            GTK_USE_PORTAL = "0";
+          };
+        };
+      };
+    };
+  })).packages.nixpak;
 
   balsa-sandbox = mkNixPak {
     config = { sloth, ... }: {
@@ -185,7 +196,7 @@ in
     pkgs.nixpkgs-fmt
     pkgsInsecure.bitwarden-desktop
     inputs.nixpkgs-mattermost.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mattermost-desktop
-    inputs.yukigram.packages.${pkgs.stdenv.hostPlatform.system}.nixpak
+    myYukigram
     balsa-sandbox.config.env
   ];
 
