@@ -1,5 +1,10 @@
 { config, pkgs, lib, inputs, ... }:
 let
+  pkgsInsecure = import inputs.nixpkgs {
+    inherit (pkgs.stdenv.hostPlatform) system;
+    config.permittedInsecurePackages = [ "electron-39.8.10" ];
+  };
+
   mkNixPak = inputs.nixpak.lib.nixpak {
     inherit (pkgs) lib;
     inherit pkgs;
@@ -178,7 +183,7 @@ in
     pkgs.freerdp
     pkgs.wireproxy
     pkgs.nixpkgs-fmt
-    pkgs.bitwarden-desktop
+    pkgsInsecure.bitwarden-desktop
     inputs.nixpkgs-mattermost.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mattermost-desktop
     inputs.yukigram.packages.${pkgs.stdenv.hostPlatform.system}.nixpak
     balsa-sandbox.config.env
