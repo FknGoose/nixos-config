@@ -136,6 +136,7 @@ in
     secrets = {
       subscription = {
         file = ./secrets/subscription.age;
+        symlink = false;
         path = "${config.home.homeDirectory}/.config/Throne/config/groups/1.json";
         mode = "600";
       };
