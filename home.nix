@@ -139,6 +139,15 @@ in
         path = "${config.home.homeDirectory}/.config/Throne/config/groups/1.json";
         mode = "600";
       };
+      rdp-proxy = {
+        file = ./secrets/rdp-proxy.age;
+        path = "${config.home.homeDirectory}/.config/wireproxy/wireproxy.conf";
+        mode = "600";
+      };
+      rdp-pass = {
+        file = ./secrets/rdp-pass.age;
+        mode = "600";
+      };
     };
   };
 
