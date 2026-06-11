@@ -98,72 +98,48 @@ let
     };
   };
 
-  rdp-script = pkgs.writeShellScriptBin "rdp-connect" ''
+  rdp-connect = pkgs.writeShellScriptBin "rdp-connect" ''
     set -e
 
-    export PATH="${pkgs.busybox}/bin:${pkgs.wireguard-tools}/bin:${pkgs.wireguard-go}/bin:${pkgs.iproute2}/bin:${pkgs.procps}/bin:$PATH"
+    export PATH="${pkgs.passt}/bin:${pkgs.wireguard-tools}/bin:${pkgs.wireguard-go}/bin:${pkgs.iproute2}/bin:${pkgs.busybox}/bin:${pkgs.gnugrep}/bin:$PATH"
 
     WG_CONF="${config.age.secrets.rdp-proxy.path}"
     RDP_PASS_FILE="${config.age.secrets.rdp-pass.path}"
+    LOCAL_SHARE="${config.home.homeDirectory}/Windows"
+    mkdir -p "$LOCAL_SHARE"
 
-    echo "Starting WireGuard tunnel inside sandbox..."
+    WG_IP=$(grep -i "^Address" "$WG_CONF" | cut -d'=' -f2 | tr -d ' ')
 
-    wireguard-go wg0
+    echo "Starting rootless net with pasta..."
 
-    cleanup() {
-        echo "Stoping WireGuard tunnel inside sandbox..."
-        ip link delete dev wg0 2>/dev/null || true
-    }
-    trap cleanup EXIT
-    WG_IP=$(grep -i "Address" "$WG_CONF" | cut -d'=' -f2 | tr -d ' ')
-    wg setconf wg0 "$WG_CONF"
-    ip address add "$WG_IP" dev wg0
-    ip link set mtu 1420 up dev wg0
-    ip route add 192.168.49.0/24 dev wg0
-    echo "Tunnel started"
-    echo "Starting xfreerdp..."
+    # Вызываем pasta
+    exec pasta --config-net -- sh -c '
+      export WG_UAPI_DIR=/tmp/wireguard
+      mkdir -p $WG_UAPI_DIR
 
-    RDP_PASS=$(cat "$RDP_PASS_FILE")
+      grep -vE -i "^(Address|DNS|MTU|PreUp|PostUp|PreDown|PostDown|Table|SaveConfig)" "$1" > $WG_UAPI_DIR/wg-stripped.conf
 
-    cat "$RDP_PASS_FILE" | ${pkgs.freerdp}/bin/xfreerdp /v:192.168.49.2 \
-      /u:v_perminov \
-      /from-stdin \
-      /drive:Windows,"/home/fkngoose/Windows" \
-      +dynamic-resolution \
-      +clipboard \
-      /cert:ignore
+      echo "Starting WireGuard userspace (wg0)..."
+      wireguard-go wg0
+
+      echo "Applying configs..."
+      wg setconf wg0 $WG_UAPI_DIR/wg-stripped.conf
+      ip address add "$2" dev wg0
+      ip link set mtu 1420 up dev wg0
+
+      echo "Routing..."
+      ip route add 192.168.49.0/24 dev wg0
+
+      echo "Starting xfreerdp with native UDP..."
+      cat "$3" | ${pkgs.freerdp}/bin/xfreerdp /v:192.168.49.2 \
+        /u:v_perminov \
+        /from-stdin \
+        /drive:Windows,"$4" \
+        +dynamic-resolution \
+        +clipboard \
+        /cert:ignore
+    ' _ "$WG_CONF" "$WG_IP" "$RDP_PASS_FILE" "$LOCAL_SHARE"
   '';
-
-  rdp-sandbox = mkNixPak {
-    config = { sloth, ... }: {
-      imports = [
-        inputs.nixpak.nixpakModules.gui-base
-      ];
-      pasta.enable = true;
-
-      app.package = rdp-script;
-      app.binPath = "bin/rdp-connect";
-
-      bubblewrap = {
-        bind.rw = [
-          "/dev/shm"
-          (sloth.concat' sloth.homeDir "/Downloads")
-          (sloth.mkdir (sloth.concat' sloth.homeDir "/Windows"))
-        ];
-        bind.ro = [
-          "/etc/passwd"
-          "/run/current-system/sw/share/themes"
-          "/run/current-system/sw/share/hunspell"
-          "/sys"
-          config.age.secrets.rdp-proxy.path
-          config.age.secrets.rdp-pass.path
-        ];
-        bind.dev = [
-          "/dev/net/tun"
-        ];
-      };
-    };
-  };
 in
 {
   imports = [
@@ -235,8 +211,8 @@ in
   home.packages = [
     pkgs.htop
     pkgs.freerdp
-    rdp-sandbox.config.env
     pkgs.nixpkgs-fmt
+    rdp-connect
     pkgsInsecure.bitwarden-desktop
     inputs.nixpkgs-mattermost.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mattermost-desktop
     myYukigram
