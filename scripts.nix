@@ -37,39 +37,5 @@ in
 
       sudo nixos-rebuild switch --flake .#${hostName}
     '')
-    (pkgs.writeShellScriptBin "rdp-connect" ''
-      set -e
-
-      WP_CONFIG="${config.age.secrets.rdp-proxy.path}"
-      RDP_PASS_FILE="${config.age.secrets.rdp-pass.path}"
-      LOCAL_SHARE="${config.home.homeDirectory}/Windows"
-
-      if [ ! -f "$WP_CONFIG" ] || [ ! -f "$RDP_PASS_FILE" ]; then
-          echo "error: agenix secrets are not decrypted yet." >&2
-          exit 1
-      fi
-
-      mkdir -p "$LOCAL_SHARE"
-
-      echo "Starting userspace Wireguard tunnel..."
-      ${pkgs.wireproxy}/bin/wireproxy -c "$WP_CONFIG" &
-      WP_PID=$!
-
-      cleanup() {
-          echo "Stopping Wireguard tunnel (PID $WP_PID)..."
-          kill "$WP_PID" 2>/dev/null || true
-      }
-      trap cleanup EXIT
-
-      sleep 2
-
-      echo "Connecting to Windows server via RDP..."
-      cat "$RDP_PASS_FILE" | ${pkgs.freerdp}/bin/xfreerdp /v:127.0.0.1:3389 \
-        /u:v_perminov \
-        /drive:Windows,"$LOCAL_SHARE" \
-        +dynamic-resolution \
-        +clipboard \
-        /cert:ignore
-    '')
   ];
 }

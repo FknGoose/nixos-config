@@ -97,6 +97,73 @@ let
       };
     };
   };
+
+  rdp-script = pkgs.writeShellScriptBin "rdp-connect" ''
+    set -e
+
+    export PATH="${pkgs.busybox}/bin:${pkgs.wireguard-tools}/bin:${pkgs.wireguard-go}/bin:${pkgs.iproute2}/bin:${pkgs.procps}/bin:$PATH"
+
+    WG_CONF="${config.age.secrets.rdp-proxy.path}"
+    RDP_PASS_FILE="${config.age.secrets.rdp-pass.path}"
+
+    echo "Starting WireGuard tunnel inside sandbox..."
+
+    wireguard-go wg0
+
+    cleanup() {
+        echo "Stoping WireGuard tunnel inside sandbox..."
+        ip link delete dev wg0 2>/dev/null || true
+    }
+    trap cleanup EXIT
+    WG_IP=$(grep -i "Address" "$WG_CONF" | cut -d'=' -f2 | tr -d ' ')
+    wg setconf wg0 "$WG_CONF"
+    ip address add "$WG_IP" dev wg0
+    ip link set mtu 1420 up dev wg0
+    ip route add 192.168.49.0/24 dev wg0
+    echo "Tunnel started"
+    echo "Starting xfreerdp..."
+
+    RDP_PASS=$(cat "$RDP_PASS_FILE")
+
+    cat "$RDP_PASS_FILE" | ${pkgs.freerdp}/bin/xfreerdp /v:192.168.49.2 \
+      /u:v_perminov \
+      /from-stdin \
+      /drive:Windows,"/home/fkngoose/Windows" \
+      +dynamic-resolution \
+      +clipboard \
+      /cert:ignore
+  '';
+
+  rdp-sandbox = mkNixPak {
+    config = { sloth, ... }: {
+      imports = [
+        inputs.nixpak.nixpakModules.gui-base
+      ];
+      pasta.enable = true;
+
+      app.package = rdp-script;
+      app.binPath = "bin/rdp-connect";
+
+      bubblewrap = {
+        bind.rw = [
+          "/dev/shm"
+          (sloth.concat' sloth.homeDir "/Downloads")
+          (sloth.mkdir (sloth.concat' sloth.homeDir "/Windows"))
+        ];
+        bind.ro = [
+          "/etc/passwd"
+          "/run/current-system/sw/share/themes"
+          "/run/current-system/sw/share/hunspell"
+          "/sys"
+          config.age.secrets.rdp-proxy.path
+          config.age.secrets.rdp-pass.path
+        ];
+        bind.dev = [
+          "/dev/net/tun"
+        ];
+      };
+    };
+  };
 in
 {
   imports = [
@@ -115,10 +182,12 @@ in
       email = "busygose@gmail.com";
     };
   };
+
   programs.zen-browser = {
     enable = true;
     package = myZenPackage;
   };
+
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
@@ -166,7 +235,7 @@ in
   home.packages = [
     pkgs.htop
     pkgs.freerdp
-    pkgs.wireproxy
+    rdp-sandbox.config.env
     pkgs.nixpkgs-fmt
     pkgsInsecure.bitwarden-desktop
     inputs.nixpkgs-mattermost.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mattermost-desktop
