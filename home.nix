@@ -12,49 +12,32 @@ let
 
   zen-sandbox = mkNixPak {
     config = { sloth, ... }: {
+      imports = [
+        inputs.nixpak.nixpakModules.gui-base
+        inputs.nixpak.nixpakModules.network
+      ];
       app.package = inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.beta;
       app.binPath = "bin/zen";
+      flatpak.appId = "app.zen_browser.Zen";
       bubblewrap = {
-        network = true;
         bind.rw = [
           "/dev/shm"
           (sloth.concat' sloth.homeDir "/Downloads")
           (sloth.mkdir (sloth.concat' sloth.homeDir "/.config/zen"))
-          (sloth.concat [ (sloth.env "XDG_RUNTIME_DIR") "/pulse" ])
-          (sloth.concat [ (sloth.env "XDG_RUNTIME_DIR") "/pipewire-0" ])
         ];
         bind.ro = [
           "/etc/passwd"
-          "/etc/fonts"
-          "/etc/ssl/certs"
-          "/etc/static/ssl/certs"
           "/run/current-system/sw/share/themes"
           "/run/current-system/sw/share/hunspell"
-          "/run/current-system/sw/share/mime"
-          "/run/current-system/sw/share/icons"
-          "/tmp/.X11-unix"
-          "/run/opengl-driver"
-          "/run/opengl-driver-32"
-          (sloth.concat' sloth.homeDir "/.config/gtk-3.0")
-          (sloth.concat' sloth.homeDir "/.config/dconf")
-          (sloth.concat' sloth.homeDir "/.Xauthority")
-          (sloth.env "XAUTHORITY")
           "/sys"
         ];
         bind.dev = [
-          "/dev/dri"
           "/dev/video0"
           "/dev/video1"
         ];
-      };
-      flatpak.appId = "app.zen_browser.Zen";
-      dbus.enable = true;
-      dbus.policies = {
-        "org.freedesktop.DBus" = "talk";
-        "org.freedesktop.Notifications" = "talk";
-        "org.freedesktop.portal.Desktop" = "talk";
-        "org.freedesktop.portal.Documents" = "talk";
-        "org.freedesktop.portal.FileChooser" = "talk";
+        sockets = {
+          pipewire = true;
+        };
       };
     };
   };
@@ -82,53 +65,35 @@ let
 
   balsa-sandbox = mkNixPak {
     config = { sloth, ... }: {
+      imports = [
+        inputs.nixpak.nixpakModules.gui-base
+        inputs.nixpak.nixpakModules.network
+      ];
       app.package = pkgs.balsa;
       app.binPath = "bin/balsa";
-
       flatpak.appId = "org.gnome.Balsa";
-
-      dbus.enable = true;
       dbus.policies = {
-        "org.freedesktop.DBus" = "talk";
-        "org.freedesktop.Notifications" = "talk";
-        "org.freedesktop.secrets" = "talk";
-        "org.freedesktop.portal.Desktop" = "talk";
-        "org.freedesktop.portal.Documents" = "talk";
         "org.desktop.Balsa" = "own";
         "org.gnome.Balsa" = "own";
+        "org.freedesktop.secrets" = "talk";
       };
-
       bubblewrap = {
-        network = true;
         bind.rw = [
           (sloth.mkdir (sloth.concat' sloth.homeDir "/.config/balsa"))
-          (sloth.mkdir (sloth.concat' sloth.homeDir "/.cache/balsa"))
-          (sloth.mkdir (sloth.concat' sloth.homeDir "/.local/state/balsa"))
-          (sloth.mkdir (sloth.concat' sloth.homeDir "/.local/share/org.desktop.Balsa"))
+          (sloth.mkdir (sloth.concat' sloth.appCacheDir "/balsa"))
+          (sloth.mkdir (sloth.concat' sloth.xdgStateHome "/balsa"))
+          (sloth.mkdir (sloth.concat' sloth.xdgDataHome "/org.desktop.Balsa"))
           (sloth.mkdir (sloth.concat' sloth.homeDir "/mail"))
           (sloth.concat' sloth.homeDir "/mailbox")
           (sloth.mkdir (sloth.concat' sloth.homeDir "/.gnupg"))
-          (sloth.concat [ (sloth.env "XDG_RUNTIME_DIR") "/" (sloth.env "WAYLAND_DISPLAY") ])
         ];
         bind.ro = [
           "/etc/passwd"
-          "/etc/fonts"
-          "/etc/ssl/certs"
-          "/etc/static/ssl/certs"
           "/run/current-system/sw/share/themes"
           "/run/current-system/sw/share/hunspell"
-          "/run/current-system/sw/share/mime"
-          "/run/current-system/sw/share/icons"
           "/etc/cups"
-          "/tmp/.X11-unix"
-          "/run/opengl-driver"
-          (sloth.concat' sloth.homeDir "/.config/gtk-3.0")
-          (sloth.concat' sloth.homeDir "/.config/dconf")
-          (sloth.concat' sloth.homeDir "/.Xauthority")
-          (sloth.env "XAUTHORITY")
           "/sys"
         ];
-        bind.dev = [ "/dev/dri" ];
       };
     };
   };
