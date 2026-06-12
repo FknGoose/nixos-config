@@ -53,6 +53,8 @@ let
         bubblewrap = {
           bind.rw = [
             (sloth.concat' sloth.homeDir "/Downloads")
+            (sloth.mkdir (sloth.concat' sloth.appDataDir "/io.github.yukigram"))
+            (sloth.concat' sloth.xdgDataHome "/io.github.yukigram")
           ];
           env = {
             QT_USE_PORTAL = "0";
