@@ -97,6 +97,8 @@ in
   imports = [
     ./scripts.nix
     inputs.agenix.homeManagerModules.default
+    inputs.stylix.homeModules.stylix
+    inputs.nixvim.homeModules.nixvim
   ];
 
   home = {
@@ -108,6 +110,8 @@ in
       time = "en_IE.UTF-8";
     };
   };
+
+  programs.nixvim.enable = true;
 
   programs.git = {
     enable = true;
@@ -160,6 +164,42 @@ in
     };
     hinting = "slight";
     subpixelRendering = "rgb";
+  };
+
+  stylix = {
+    enable = true;
+    autoEnable = true;
+    base16Scheme = "${pkgs.base16-schemes}/share/themes/brewer.yaml";
+    image = ./wallpaper.png;
+    fonts = {
+      serif = {
+        package = pkgs.liberation_ttf;
+        name = "Liberation Serif";
+      };
+      sansSerif = {
+        package = pkgs.inter;
+        name = "Inter";
+      };
+      monospace = {
+        package = pkgs.nerd-fonts.jetbrains-mono;
+        name = "JetBrainsMono Nerd Font Mono";
+      };
+      emoji = {
+        package = pkgs.noto-fonts-color-emoji;
+        name = "Noto Color Emoji";
+      };
+    };
+    cursor = {
+      name = "phinger-cursors-dark";
+      package = pkgs.phinger-cursors;
+      size = 24;
+    };
+    icons = {
+      enable = true;
+      dark = "Papirus-Dark";
+      package = pkgs.papirus-icon-theme;
+    };
+    targets.zen-browser.enable = false;
   };
 
   home.packages = [

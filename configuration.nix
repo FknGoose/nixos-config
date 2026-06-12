@@ -52,16 +52,25 @@
     packages = with pkgs; [
       inter
       nerd-fonts.jetbrains-mono
-      liberation_ttf
       noto-fonts-color-emoji
       noto-fonts
       corefonts
     ];
   };
 
-  # X11
+  # Desktop Environment
   services.xserver.enable = true;
-  services.displayManager.sddm.enable = true;
+  services.greetd.enable = true;
+  programs.regreet = {
+    enable = true;
+    settings = {
+      background = {
+        path = ./wallpaper.png;
+        fit = "Cover";
+      };
+    };
+  };
+  programs.niri.enable = true;
   services.desktopManager.plasma6.enable = true;
   services.xserver.xkb = {
     layout = "us,ru";

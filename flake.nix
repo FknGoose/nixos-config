@@ -20,6 +20,14 @@
     };
     nixpkgs-mattermost.url = "github:nixos/nixpkgs/dd156a9d4fa76f3b4bb58529f72190226caf0100"; # Due to EOL of team server
     yukigram.url = "github:yukigram/yukigram/release";
+    stylix = {
+      url = "github:nix-community/stylix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    nixvim = {
+      url = "github:nix-community/nixvim";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs@{ self, nixpkgs, nixos-hardware, home-manager, ... }: {
