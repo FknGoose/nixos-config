@@ -60,13 +60,20 @@
 
   # Desktop Environment
   services.xserver.enable = true;
-  services.greetd.enable = true;
-  programs.regreet = {
+  services.greetd = {
     enable = true;
     settings = {
-      background = {
-        path = ./wallpaper.png;
-        fit = "Cover";
+      default_session = {
+        command = ''
+          ${pkgs.tuigreet}/bin/tuigreet \
+          --time \
+          --time-format  %dddd, '%A, %d.%m.%Y | %R' \
+          --remember \
+          --remember-session \
+          --sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions \
+          --cmd niri
+        '';
+        user = "greeter";
       };
     };
   };
@@ -137,7 +144,8 @@
 
 
   # MISC
-  nixpkgs.config.allowUnfree = true; # For propietary drivers
+  nixpkgs.config.allowUnfree = true;
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
   security.rtkit.enable = true;
   hardware.enableRedistributableFirmware = true;
   i18n.extraLocales = [ "en_IE.UTF-8/UTF-8" ];
