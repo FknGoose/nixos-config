@@ -35,6 +35,7 @@
   };
 
   # BOOT
+  boot.kernelParams = [ "snd_intel_dspcfg.dsp_driver=3" ];
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.systemd-boot.windows = {
@@ -114,6 +115,8 @@
   nixpkgs.config.allowUnfree = true; # For propietary drivers
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   security.rtkit.enable = true;
+  hardware.enableRedistributableFirmware = true;
+
 
 
   # Set your time zone.
