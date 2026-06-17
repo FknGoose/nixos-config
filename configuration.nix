@@ -109,6 +109,18 @@
       STOP_CHARGE_THRESH_BAT0 = 80;
     };
   };
+  systemd.services.declarative-alsa-volumes = {
+    description = "Set ALSA volumes for Realtek ALC257 on boot";
+    enable = true;
+    script = ''
+      ${pkgs.alsa-utils}/bin/amixer -c sofhdadsp set Capture 75% unmute cap
+      ${pkgs.alsa-utils}/bin/amixer -c sofhdadsp set "PGA2.0 2 Master" 60%
+      ${pkgs.alsa-utils}/bin/amixer -c sofhdadsp set "Mic Boost" 0%
+      ${pkgs.alsa-utils}/bin/amixer -c sofhdadsp set "Internal Mic Boost" 0%
+    '';
+    wantedBy = [ "multi-user.target" ];
+    after = [ "sound.target" ];
+  };
 
 
   # MISC
