@@ -107,8 +107,15 @@ in
     inputs.zen-browser.homeModules.beta
   ];
 
-  home.username = "fkngoose";
-  home.homeDirectory = "/home/fkngoose";
+  home = {
+    username = "fkngoose";
+    homeDirectory = "/home/fkngoose";
+    sessionVariables.TZ = "Europe/Moscow";
+    language = {
+      base = "en_US.UTF-8";
+      time = "en_IE.UTF-8";
+    };
+  };
 
   programs.git = {
     enable = true;

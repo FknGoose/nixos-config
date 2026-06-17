@@ -128,8 +128,7 @@
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   security.rtkit.enable = true;
   hardware.enableRedistributableFirmware = true;
-
-
+  i18n.extraLocales = [ "en_IE.UTF-8/UTF-8" ];
 
   # Set your time zone.
   # time.timeZone = "Europe/Amsterdam";
