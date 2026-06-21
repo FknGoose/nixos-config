@@ -37,27 +37,6 @@
 
   # BOOT
   boot.kernelParams = [ "snd_intel_dspcfg.dsp_driver=3" ];
-  hardware.firmware = [
-    (pkgs.writeTextDir "lib/firmware/hda-jack-retask.fw" ''
-      [codec]
-      0x10ec0257 0x0 0
-
-      [pincfg]
-      0x12 0x90a60120
-      0x13 0x40000000
-      0x14 0x90170110
-      0x18 0x411111f0
-      0x19 0x04a11030
-      0x1a 0x411111f0
-      0x1b 0x411111f0
-      0x1d 0x40661b45
-      0x1e 0x411111f0
-      0x21 0x0421101f
-    '')
-  ];
-  boot.extraModprobeConfig = ''s
-    options snd-hda-intel patch=hda-jack-retak.fw model=auto
-  '';
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.systemd-boot.windows = {
@@ -131,12 +110,17 @@
       STOP_CHARGE_THRESH_BAT0 = 80;
     };
   };
-  systemd.services.declarative-alsa-volumes = {
+  environment.sessionVariables = {
+    ALSA_CONFIG_UCM2 = "/dev/null";
+  };
+  systemd.user.services.pipewire.environment.ALSA_CONFIG_UCM2 = "/dev/null";
+  systemd.user.services.wireplumber.environment.ALSA_CONFIG_UCM2 = "/dev/null";
+  systemd.services.alsa-volumes = {
     description = "Set ALSA volumes for Realtek ALC257 on boot";
     enable = true;
     script = ''
-      ${pkgs.alsa-utils}/bin/amixer -c sofhdadsp set Capture 75% unmute cap
-      ${pkgs.alsa-utils}/bin/amixer -c sofhdadsp set "PGA2.0 2 Master" 60%
+      ${pkgs.alsa-utils}/bin/amixer -c sofhdadsp set Capture 100% unmute cap
+      ${pkgs.alsa-utils}/bin/amixer -c sofhdadsp set "PGA2.0 2 Master" 35%
       ${pkgs.alsa-utils}/bin/amixer -c sofhdadsp set "Mic Boost" 0%
       ${pkgs.alsa-utils}/bin/amixer -c sofhdadsp set "Internal Mic Boost" 0%
     '';
@@ -147,18 +131,6 @@
 
   # MISC
   nixpkgs.config.allowUnfree = true; # For propietary drivers
-  nixpkgs.overlays = [
-    (final: prev: {
-      alsa-ucm-conf = prev.alsa-ucm-conf.overrideAttrs (oldAttrs: {
-        patches = (oldAttrs.patches or [ ]) ++ [
-          (prev.fetchpatch {
-            url = "https://github.com/alsa-project/alsa-ucm-conf/pull/792.patch";
-            hash = "sha256-kb/UctBZhA6x7soC/h9W4sV/pGVWZZs8Gey8AYYG5H0=";
-          })
-        ];
-      });
-    })
-  ];
   security.rtkit.enable = true;
   hardware.enableRedistributableFirmware = true;
   i18n.extraLocales = [ "en_IE.UTF-8/UTF-8" ];

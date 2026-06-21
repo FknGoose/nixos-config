@@ -2,13 +2,11 @@
 Configs for my NixOS system(s)
 
 ### TODO:
-1. Bind microphones to Zen
-2. Fix Russian keyboard layout in Yukigram
-3. Release rdp-connect
-4. Set up NixVim
-5. Set up Syncthing with Tailscale
-6. Switch to niri
-7. Build a complete DE
+1. Release rdp-connect
+2. Set up NixVim
+3. Set up Syncthing with Tailscale
+4. Switch to niri
+5. Build a complete DE
 
 <details>
   <summary>DE packages list</summary>
