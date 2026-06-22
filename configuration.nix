@@ -45,9 +45,10 @@
   };
 
   # NETWORK
-  networking.hostName = "nixos-x390";
-  networking.networkmanager.enable = true;
-
+  networking = {
+    hostName = "nixos-x390";
+    networkmanager.enable = true;
+  };
   # Font packages
   fonts = {
     packages = with pkgs; [

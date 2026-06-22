@@ -106,9 +106,9 @@ let
     WG_CONF="${config.age.secrets.rdp-proxy.path}"
     RDP_PASS_FILE="${config.age.secrets.rdp-pass.path}"
     LOCAL_SHARE="${config.home.homeDirectory}/Windows"
+
     mkdir -p "$LOCAL_SHARE"
 
-    # Очистка при завершении сессии RDP (всегда убивает фоновый процесс wireproxy)
     cleanup() {
       echo "Stopping tunnel..."
       if [ -n "$WIREPROXY_PID" ]; then
@@ -121,7 +121,6 @@ let
     wireproxy -c "$WG_CONF" >/dev/null 2>&1 &
     WIREPROXY_PID=$!
 
-    # Ожидаем готовности локального порта 33890
     echo "Waiting for tunnel to establish..."
     timeout=50
     while ! nc -z 127.0.0.1 33890 >/dev/null 2>&1; do
@@ -132,18 +131,16 @@ let
         exit 1
       fi
     done
-
     echo "Tunnel is ready on port 33890."
-    echo "Starting xfreerdp..."
 
-    # Подключаемся к локальному концу туннеля
-    tr -d "\r\n" < "$RDP_PASS_FILE" | ${pkgs.freerdp}/bin/xfreerdp /v:127.0.0.1:33890 \
+    echo "Starting xfreerdp..."
+    ${pkgs.freerdp}/bin/xfreerdp /v:127.0.0.1:33890 \
       /u:v_perminov \
-      /from-stdin \
+      /from-stdin:force \
       /drive:Windows,"$LOCAL_SHARE" \
       +dynamic-resolution \
       +clipboard \
-      /cert:ignore
+      /cert:ignore < "$RDP_PASS_FILE"
   '';
 in
 {
