@@ -2,11 +2,10 @@
 Configs for my NixOS system(s)
 
 ### TODO:
-1. Release rdp-connect
-2. Set up NixVim
-3. Set up Syncthing with Tailscale
-4. Switch to niri
-5. Build a complete DE
+1. Set up NixVim
+2. Set up Syncthing with Tailscale
+3. Switch to niri
+4. Build a complete DE
 
 <details>
   <summary>DE packages list</summary>

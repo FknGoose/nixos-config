@@ -99,6 +99,51 @@ let
       };
     };
   };
+
+  rdp-connect = pkgs.writeShellScriptBin "rdp-connect" ''
+    set -e
+
+    export PATH="${pkgs.wireproxy}/bin:${pkgs.coreutils}/bin:${pkgs.netcat-openbsd}/bin:$PATH"
+
+    WG_CONF="${config.age.secrets.rdp-proxy.path}"
+    RDP_PASS_FILE="${config.age.secrets.rdp-pass.path}"
+    LOCAL_SHARE="${config.home.homeDirectory}/Windows"
+
+    mkdir -p "$LOCAL_SHARE"
+
+    cleanup() {
+      echo "Stopping tunnel..."
+      if [ -n "$WIREPROXY_PID" ]; then
+        kill "$WIREPROXY_PID" 2>/dev/null || true
+      fi
+    }
+    trap cleanup EXIT INT TERM
+
+    echo "Starting userspace WireGuard proxy..."
+    wireproxy -c "$WG_CONF" >/dev/null 2>&1 &
+    WIREPROXY_PID=$!
+
+    echo "Waiting for tunnel to establish..."
+    timeout=50
+    while ! nc -z 127.0.0.1 33890 >/dev/null 2>&1; do
+      sleep 0.1
+      timeout=$((timeout - 1))
+      if [ "$timeout" -le 0 ]; then
+        echo "Error: Tunnel failed to start" >&2
+        exit 1
+      fi
+    done
+    echo "Tunnel is ready on port 33890."
+
+    echo "Starting xfreerdp..."
+    ${pkgs.freerdp}/bin/xfreerdp /v:127.0.0.1:33890 \
+      /u:v_perminov \
+      /from-stdin:force \
+      /drive:Windows,"$LOCAL_SHARE" \
+      +dynamic-resolution \
+      +clipboard \
+      /cert:ignore < "$RDP_PASS_FILE"
+  '';
 in
 {
   imports = [
@@ -124,10 +169,12 @@ in
       email = "busygose@gmail.com";
     };
   };
+
   programs.zen-browser = {
     enable = true;
     package = myZenPackage;
   };
+
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
@@ -149,6 +196,15 @@ in
         path = "${config.home.homeDirectory}/.config/Throne/config/groups/1.json";
         mode = "600";
       };
+      rdp-proxy = {
+        file = ./secrets/rdp-proxy.age;
+        path = "${config.home.homeDirectory}/.config/wireproxy/wireproxy.conf";
+        mode = "600";
+      };
+      rdp-pass = {
+        file = ./secrets/rdp-pass.age;
+        mode = "600";
+      };
     };
   };
 
@@ -167,8 +223,8 @@ in
   home.packages = [
     pkgs.htop
     pkgs.freerdp
-    pkgs.wireproxy
     pkgs.nixpkgs-fmt
+    rdp-connect
     pkgsInsecure.bitwarden-desktop
     inputs.nixpkgs-mattermost.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mattermost-desktop
     myYukigram
