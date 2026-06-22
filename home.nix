@@ -101,44 +101,49 @@ let
   rdp-connect = pkgs.writeShellScriptBin "rdp-connect" ''
     set -e
 
-    export PATH="${pkgs.passt}/bin:${pkgs.wireguard-tools}/bin:${pkgs.wireguard-go}/bin:${pkgs.iproute2}/bin:${pkgs.busybox}/bin:${pkgs.gnugrep}/bin:$PATH"
+    export PATH="${pkgs.wireproxy}/bin:${pkgs.coreutils}/bin:${pkgs.netcat-openbsd}/bin:$PATH"
 
     WG_CONF="${config.age.secrets.rdp-proxy.path}"
     RDP_PASS_FILE="${config.age.secrets.rdp-pass.path}"
     LOCAL_SHARE="${config.home.homeDirectory}/Windows"
     mkdir -p "$LOCAL_SHARE"
 
-    WG_IP=$(grep -i "^Address" "$WG_CONF" | cut -d'=' -f2 | tr -d ' ')
+    # Очистка при завершении сессии RDP (всегда убивает фоновый процесс wireproxy)
+    cleanup() {
+      echo "Stopping tunnel..."
+      if [ -n "$WIREPROXY_PID" ]; then
+        kill "$WIREPROXY_PID" 2>/dev/null || true
+      fi
+    }
+    trap cleanup EXIT INT TERM
 
-    echo "Starting rootless net with pasta..."
+    echo "Starting userspace WireGuard proxy..."
+    wireproxy -c "$WG_CONF" >/dev/null 2>&1 &
+    WIREPROXY_PID=$!
 
-    # Вызываем pasta
-    exec pasta --config-net -- sh -c '
-      export WG_UAPI_DIR=/tmp/wireguard
-      mkdir -p $WG_UAPI_DIR
+    # Ожидаем готовности локального порта 33890
+    echo "Waiting for tunnel to establish..."
+    timeout=50
+    while ! nc -z 127.0.0.1 33890 >/dev/null 2>&1; do
+      sleep 0.1
+      timeout=$((timeout - 1))
+      if [ "$timeout" -le 0 ]; then
+        echo "Error: Tunnel failed to start" >&2
+        exit 1
+      fi
+    done
 
-      grep -vE -i "^(Address|DNS|MTU|PreUp|PostUp|PreDown|PostDown|Table|SaveConfig)" "$1" > $WG_UAPI_DIR/wg-stripped.conf
+    echo "Tunnel is ready on port 33890."
+    echo "Starting xfreerdp..."
 
-      echo "Starting WireGuard userspace (wg0)..."
-      wireguard-go wg0
-
-      echo "Applying configs..."
-      wg setconf wg0 $WG_UAPI_DIR/wg-stripped.conf
-      ip address add "$2" dev wg0
-      ip link set mtu 1420 up dev wg0
-
-      echo "Routing..."
-      ip route add 192.168.49.0/24 dev wg0
-
-      echo "Starting xfreerdp with native UDP..."
-      cat "$3" | ${pkgs.freerdp}/bin/xfreerdp /v:192.168.49.2 \
-        /u:v_perminov \
-        /from-stdin \
-        /drive:Windows,"$4" \
-        +dynamic-resolution \
-        +clipboard \
-        /cert:ignore
-    ' _ "$WG_CONF" "$WG_IP" "$RDP_PASS_FILE" "$LOCAL_SHARE"
+    # Подключаемся к локальному концу туннеля
+    tr -d "\r\n" < "$RDP_PASS_FILE" | ${pkgs.freerdp}/bin/xfreerdp /v:127.0.0.1:33890 \
+      /u:v_perminov \
+      /from-stdin \
+      /drive:Windows,"$LOCAL_SHARE" \
+      +dynamic-resolution \
+      +clipboard \
+      /cert:ignore
   '';
 in
 {
