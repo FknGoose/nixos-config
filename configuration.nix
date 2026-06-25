@@ -95,17 +95,14 @@
   services.printing.enable = true;
   services.gnome.gnome-keyring.enable = true;
   services.power-profiles-daemon.enable = false;
-  services.auto-cpufreq.enable = true;
   services.tlp = {
     enable = true;
     pd.enable = true;
     settings = {
-      CPU_SCALING_GOVERNOR_ON_AC = "";
-      CPU_SCALING_GOVERNOR_ON_BAT = "";
-      CPU_ENERGY_PERF_POLICY_ON_AC = "";
-      CPU_ENERGY_PERF_POLICY_ON_BAT = "";
-      CPU_HWP_DYN_BOOST_ON_AC = "";
-      CPU_HWP_DYN_BOOST_ON_BAT = "";
+      CPU_SCALING_GOVERNOR_ON_AC = "powersave";
+      CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
+      CPU_ENERGY_PERF_POLICY_ON_AC = "balance_performance";
+      CPU_ENERGY_PERF_POLICY_ON_BAT = "balance_power";
       START_CHARGE_THRESH_BAT0 = 70;
       STOP_CHARGE_THRESH_BAT0 = 80;
     };
