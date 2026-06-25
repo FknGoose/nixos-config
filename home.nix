@@ -43,11 +43,6 @@ let
     };
   };
 
-  myZenPackage = zen-sandbox.config.env // { # Else fails to build
-    override = _: myZenPackage;
-    overrideAttrs = _: myZenPackage;
-  };
-
   myYukigram = (inputs.yukigram.d.${pkgs.stdenv.hostPlatform.system}.override (prev: {
     nixpak.yukigram = prev.nixpak.yukigram.override {
       customNixpakConfig = { sloth, ... }: {
@@ -106,7 +101,6 @@ in
   imports = [
     ./scripts.nix
     inputs.agenix.homeManagerModules.default
-    inputs.zen-browser.homeModules.beta
   ];
 
   home = {
@@ -125,11 +119,6 @@ in
       name = "FknGoose";
       email = "busygose@gmail.com";
     };
-  };
-
-  programs.zen-browser = {
-    enable = true;
-    package = myZenPackage;
   };
 
   programs.ssh = {
@@ -184,6 +173,7 @@ in
     pkgsInsecure.bitwarden-desktop
     inputs.nixpkgs-mattermost.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mattermost-desktop
     myYukigram
+    zen-sandbox.config.env
     balsa-sandbox.config.env
   ];
 
