@@ -87,7 +87,7 @@
   # USERS
   users.users.fkngoose = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" "video" ];
+    extraGroups = [ "wheel" "networkmanager" "video" "input" ];
     packages = with pkgs; [ ];
     homeMode = "700";
     initialPassword = "1234"; # Don't forget to set a password with ‘passwd’
@@ -98,8 +98,11 @@
   programs.git.enable = true;
   programs.throne.enable = true;
   programs.throne.tunMode.enable = true;
+  programs.gpu-screen-recorder.enable = true;
 
   # SERVICES
+  hardware.bluetooth.enable = true;
+  services.blueman.enable = true;
   services.libinput.enable = true;
   services.pipewire = {
     enable = true;
@@ -129,7 +132,8 @@
   };
   systemd.user.services.pipewire.environment.ALSA_CONFIG_UCM2 = "/dev/null";
   systemd.user.services.wireplumber.environment.ALSA_CONFIG_UCM2 = "/dev/null";
-  systemd.services.alsa-volumes = { # Preserve settings after reinstallation
+  systemd.services.alsa-volumes = {
+    # Preserve settings after reinstallation
     description = "Set ALSA volumes for Realtek ALC257 on boot";
     enable = true;
     script = ''
@@ -145,10 +149,10 @@
 
   # MISC
   nixpkgs.config.allowUnfree = true;
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
   security.rtkit.enable = true;
   hardware.enableRedistributableFirmware = true;
   i18n.extraLocales = [ "en_IE.UTF-8/UTF-8" ];
+  security.pam.services.swaylock = {};
 
   # This option defines the first version of NixOS you have installed on this particular machine,
   # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.

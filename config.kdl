@@ -1,0 +1,11 @@
+
+binds {
+    "Super+R" { spawn "sh" "-c" "killall -SIGINT gpu-screen-recorder || gpu-screen-recorder -w $(slurp -f '%wx%h+%x+%y') -f 60 -a default_output -o ~/Videos/Screencasts/video-$(date +%Y-%m-%d_%H-%M-%S).mp4"; }
+
+
+    "Print" { spawn "sh" "-c" "grim -g \"$(slurp)\" - | swappy -f - -o - | wl-copy"; }
+
+    "Ctrl+Print" { spawn "sh" "-c" "grim -g \"$(slurp)\" - | wl-copy"; }
+
+    "Shift+Print" { spawn "sh" "-c" "grim -g \"$(slurp)\" - | swappy -f -"; }
+}

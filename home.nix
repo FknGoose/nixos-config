@@ -1,7 +1,8 @@
 { config, pkgs, lib, inputs, ... }:
 
 let
-  pkgsInsecure = import inputs.nixpkgs { # Due to https://github.com/NixOS/nixpkgs/issues/526914
+  pkgsInsecure = import inputs.nixpkgs {
+    # Due to https://github.com/NixOS/nixpkgs/issues/526914
     inherit (pkgs.stdenv.hostPlatform) system;
     config.permittedInsecurePackages = [ "electron-39.8.10" ];
   };
@@ -47,7 +48,8 @@ let
     nixpak.yukigram = prev.nixpak.yukigram.override {
       customNixpakConfig = { sloth, ... }: {
         bubblewrap = {
-          bind.rw = [ # Bind additional folders for convenience
+          bind.rw = [
+            # Bind additional folders for convenience
             (sloth.concat' sloth.homeDir "/Downloads")
             (sloth.mkdir (sloth.concat' sloth.appDataDir "/io.github.yukigram"))
             (sloth.concat' sloth.xdgDataHome "/io.github.yukigram")
@@ -57,7 +59,8 @@ let
     };
   })).packages.nixpak;
 
-  balsa-sandbox = mkNixPak { # Complex and fragile. Consider removal
+  balsa-sandbox = mkNixPak {
+    # Complex and fragile. Consider removal
     config = { sloth, ... }: {
       imports = [
         inputs.nixpak.nixpakModules.gui-base
@@ -133,6 +136,72 @@ in
     };
   };
 
+  programs.waybar = {
+    enable = true;
+    systemd.enable = true;
+    settings = {
+      mainBar = {
+        layer = "top";
+        position = "top";
+        height = 30;
+        modules-left = [
+          "niri/workspaces"
+          "niri/window"
+        ];
+        modules-center = [
+          "clock"
+        ];
+        modules-right = [
+          "niri/language"
+          "pulseaudio"
+          "battery"
+          "tray"
+        ];
+        "niri/workspaces" = {
+          format = "{index}";
+        };
+        "niri/window" = {
+          format = "{}";
+          max-length = 40;
+        };
+        clock = {
+          format = "{:%H:%M | %A, %d.%m.%y}";
+          on-click = "gsimplecal";
+          tooltip-format = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
+        };
+        "niri/language" = {
+          format = "{}";
+        };
+        pulseaudio = {
+          format = "{icon} {volume}%";
+          format-muted = "󰝟 Muted";
+          format-icons = {
+            default = [ "󰕿" "󰖀" "󰕾" ];
+          };
+          on-click = "pwvucontrol";
+        };
+
+        battery = {
+          states = {
+            warning = 30;
+            critical = 15;
+          };
+          format = "{icon} {capacity}%";
+          format-charging = "󱐥 {capacity}%";
+          format-plugged = "󰚥 {capacity}%";
+          format-icons = [ "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰁀" "󰁁" "󰁂" "󰁃" "󰁄" ];
+        };
+
+        tray = {
+          icon-size = 16;
+          spacing = 10;
+        };
+      };
+    };
+  };
+
+  programs.fuzzel.enable = true;
+
   age = {
     identityPaths = [ "${config.home.homeDirectory}/.ssh/id_ed25519" ];
     secrets = {
@@ -202,8 +271,27 @@ in
     targets.zen-browser.enable = false;
   };
 
+  services = {
+    mako.enable = true;
+    swayosd.enable = true;
+    blueman-applet.enable = true;
+    polkit-gnome.enable = true;
+    network-manager-applet.enable = true;
+    cliphist = {
+      enable = true;
+      allowImages = true;
+    };
+    wlsunset = {
+      enable = true;
+      latitude = "29.54";
+      longitude = "-39.38";
+      temperature.day = 4500;
+      temperature.night = 4500;
+    };
+  };
+
   home.packages = [
-    pkgs.htop
+    pkgs.btop
     pkgs.freerdp
     pkgs.nixpkgs-fmt
     pkgsInsecure.bitwarden-desktop
@@ -211,7 +299,25 @@ in
     yukigram-sandbox
     zen-sandbox.config.env
     balsa-sandbox.config.env
+    pkgs.pwvucontrol
+    pkgs.gsimplecal
+    pkgs.loupe
+    pkgs.grim
+    pkgs.slurp
+    pkgs.swappy
+    pkgs.wl-clipboard
+    pkgs.psmisc
   ];
+
+  xdg.configFile = {
+    "swappy/config".text = ''
+      [Default]
+      save_dir=$HOME/Downloads
+      save_filename_format=screenshot-%Y-%m-%d_%H-%M-%S.png
+      save_command=
+    '';
+    "niri/config.kdl".source = ./config.kdl;
+    };
 
   home.enableNixpkgsReleaseCheck = false;
 
