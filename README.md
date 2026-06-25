@@ -4,8 +4,10 @@ Configs for my NixOS system(s)
 ### TODO:
 1. Set up NixVim
 2. Set up Syncthing with Tailscale
-3. Switch to niri
-4. Build a complete DE
+3. Switch to Aerc
+4. Switch to Mihomo
+5. Switch to niri
+6. Build a complete DE
 
 <details>
   <summary>DE packages list</summary>
@@ -43,4 +45,6 @@ These packages will be included and configured in the future. Packages marked as
   - [ ] [btop](https://github.com/aristocratos/btop)
   - [ ] [rbw](https://github.com/doy/rbw)
   - [ ] [fuzzel-rbw](https://github.com/lifeashansen/fuzzel-rbw)
+  - [ ] [aerc](https://github.com/aerc-mail/aerc)
+  - [ ] [mihomo](https://github.com/MetaCubeX/mihomo)
 </details>
