@@ -87,6 +87,7 @@ let
       /from-stdin:force \
       /drive:Windows,"$LOCAL_SHARE" \
       +dynamic-resolution \
+      -grab-keyboard \
       +clipboard \
       /cert:ignore < "$RDP_PASS_FILE"
   '';
