@@ -1,6 +1,7 @@
 { config, pkgs, lib, inputs, ... }:
+
 let
-  pkgsInsecure = import inputs.nixpkgs {
+  pkgsInsecure = import inputs.nixpkgs { # Due to https://github.com/NixOS/nixpkgs/issues/526914
     inherit (pkgs.stdenv.hostPlatform) system;
     config.permittedInsecurePackages = [ "electron-39.8.10" ];
   };
@@ -42,7 +43,7 @@ let
     };
   };
 
-  myZenPackage = zen-sandbox.config.env // {
+  myZenPackage = zen-sandbox.config.env // { # Else fails to build
     override = _: myZenPackage;
     overrideAttrs = _: myZenPackage;
   };
@@ -51,7 +52,7 @@ let
     nixpak.yukigram = prev.nixpak.yukigram.override {
       customNixpakConfig = { sloth, ... }: {
         bubblewrap = {
-          bind.rw = [
+          bind.rw = [ # Bind additional folders for convenience
             (sloth.concat' sloth.homeDir "/Downloads")
             (sloth.mkdir (sloth.concat' sloth.appDataDir "/io.github.yukigram"))
             (sloth.concat' sloth.xdgDataHome "/io.github.yukigram")
@@ -65,7 +66,7 @@ let
     };
   })).packages.nixpak;
 
-  balsa-sandbox = mkNixPak {
+  balsa-sandbox = mkNixPak { # Complex and fragile. Consider removal
     config = { sloth, ... }: {
       imports = [
         inputs.nixpak.nixpakModules.gui-base
@@ -148,7 +149,7 @@ in
     secrets = {
       subscription = {
         file = ./secrets/subscription.age;
-        symlink = false;
+        symlink = false; # Else fails to update subscription
         path = "${config.home.homeDirectory}/.config/Throne/config/groups/1.json";
         mode = "600";
       };

@@ -36,7 +36,7 @@
   };
 
   # BOOT
-  boot.kernelParams = [ "snd_intel_dspcfg.dsp_driver=3" ];
+  boot.kernelParams = [ "snd_intel_dspcfg.dsp_driver=3" ]; # Force kernel to use SOF driver
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.systemd-boot.windows = {
@@ -114,12 +114,13 @@
       STOP_CHARGE_THRESH_BAT0 = 80;
     };
   };
+  # Disable UCM due to https://github.com/alsa-project/alsa-ucm-conf/issues/785
   environment.sessionVariables = {
     ALSA_CONFIG_UCM2 = "/dev/null";
   };
   systemd.user.services.pipewire.environment.ALSA_CONFIG_UCM2 = "/dev/null";
   systemd.user.services.wireplumber.environment.ALSA_CONFIG_UCM2 = "/dev/null";
-  systemd.services.alsa-volumes = {
+  systemd.services.alsa-volumes = { # Preserve settings after reinstallation
     description = "Set ALSA volumes for Realtek ALC257 on boot";
     enable = true;
     script = ''
