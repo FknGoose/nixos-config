@@ -43,7 +43,7 @@ let
     };
   };
 
-  myYukigram = (inputs.yukigram.d.${pkgs.stdenv.hostPlatform.system}.override (prev: {
+  yukigram-sandbox = (inputs.yukigram.d.${pkgs.stdenv.hostPlatform.system}.override (prev: {
     nixpak.yukigram = prev.nixpak.yukigram.override {
       customNixpakConfig = { sloth, ... }: {
         bubblewrap = {
@@ -52,10 +52,6 @@ let
             (sloth.mkdir (sloth.concat' sloth.appDataDir "/io.github.yukigram"))
             (sloth.concat' sloth.xdgDataHome "/io.github.yukigram")
           ];
-          env = {
-            QT_USE_PORTAL = "0";
-            GTK_USE_PORTAL = "0";
-          };
         };
       };
     };
@@ -172,7 +168,7 @@ in
     pkgs.nixpkgs-fmt
     pkgsInsecure.bitwarden-desktop
     inputs.nixpkgs-mattermost.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mattermost-desktop
-    myYukigram
+    yukigram-sandbox
     zen-sandbox.config.env
     balsa-sandbox.config.env
   ];
