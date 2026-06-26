@@ -91,10 +91,35 @@ let
       +clipboard \
       /cert:ignore < "$RDP_PASS_FILE"
   '';
+
+  toggle-censor = pkgs.writeShellScriptBin "toggle-censor" ''
+    set -e
+    export PATH="${pkgs.niri}/bin:${pkgs.jq}/bin:${pkgs.coreutils}/bin:${pkgs.gnugrep}/bin:$PATH"
+
+    CENSOR_FILE="$HOME/.config/niri/censored.kdl"
+    touch "$CENSOR_FILE"
+
+    # Получаем уникальный ID активного окна от Niri
+    FOCUS_ID=$(niri msg --json focused-window | jq '.id')
+
+    # Если окон нет, выходим
+    if [ -z "$FOCUS_ID" ] || [ "$FOCUS_ID" = "null" ]; then
+        exit 0
+    fi
+
+    # Если это окно уже замаскировано, снимаем маскировку (очищаем файл)
+    if grep -q "match id=$FOCUS_ID" "$CENSOR_FILE"; then
+        echo "" > "$CENSOR_FILE"
+    else
+        # Иначе записываем динамическое правило для этого конкретного ID окна
+        echo -e "window-rule {\n    match id=$FOCUS_ID\n    block-out-from \"screencast\"\n}" > "$CENSOR_FILE"
+    fi
+  '';
 in
 {
   home.packages = [
     rdp-connect
     nix-deploy
+    toggle-censor
   ];
 }

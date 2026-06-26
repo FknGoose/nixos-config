@@ -197,7 +197,15 @@ in
     };
   };
 
-  programs.fuzzel.enable = true;
+  programs.fuzzel = {
+    enable = true;
+    settings = {
+      main = {
+        layer = "overlay";
+        fields = "filename,name,generic,keywords";
+      };
+    };
+  };
 
   programs.swaylock = {
     enable = true;
@@ -368,6 +376,17 @@ in
       save_command=
     '';
     "niri/config.kdl".source = ./config.kdl;
+    "niri/censored.kdl".text = "";
+    "niri/colors.kdl".text = ''
+      layout {
+          focus-ring {
+              on
+              width 1
+              active-color "#${config.lib.stylix.colors.base0D}"
+          }
+          border { off }
+      }
+    '';
   };
 
   home.enableNixpkgsReleaseCheck = false;
