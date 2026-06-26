@@ -37,10 +37,13 @@
         nixos-hardware.nixosModules.lenovo-thinkpad-x390
         home-manager.nixosModules.home-manager
         {
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.extraSpecialArgs = { inherit inputs; };
-          home-manager.users.fkngoose = ./home.nix;
+          home-manager = {
+            backupFileExtension = "bak";
+            useGlobalPkgs = true;
+            useUserPackages = true;
+            extraSpecialArgs = { inherit inputs; };
+            users.fkngoose = ./home.nix;
+          };
         }
       ];
     };
