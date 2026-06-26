@@ -143,10 +143,9 @@ in
       mainBar = {
         layer = "top";
         position = "top";
-        height = 30;
+        height = 24;
         modules-left = [
           "niri/workspaces"
-          "niri/window"
         ];
         modules-center = [
           "clock"
@@ -160,10 +159,6 @@ in
         "niri/workspaces" = {
           format = "{index}";
         };
-        "niri/window" = {
-          format = "{}";
-          max-length = 40;
-        };
         clock = {
           format = "{:%H:%M | %A, %d.%m.%y}";
           on-click = "gsimplecal";
@@ -171,6 +166,8 @@ in
         };
         "niri/language" = {
           format = "{}";
+          format-en = "US";
+          format-ru = "RU";
         };
         pulseaudio = {
           format = "{icon} {volume}%";
@@ -183,8 +180,8 @@ in
 
         battery = {
           states = {
-            warning = 30;
-            critical = 15;
+            warning = 20;
+            critical = 10;
           };
           format = "{icon} {capacity}%";
           format-charging = "󱐥 {capacity}%";
@@ -201,6 +198,17 @@ in
   };
 
   programs.fuzzel.enable = true;
+
+  programs.swaylock = {
+    enable = true;
+    package = pkgs.swaylock-effects;
+    settings = {
+      clock = true;
+      indicator = true;
+      timestr = "%H:%M";
+      datestr = "%A, %d.%m.%y";
+    };
+  };
 
   age = {
     identityPaths = [ "${config.home.homeDirectory}/.ssh/id_ed25519" ];
@@ -241,6 +249,12 @@ in
     base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
     image = ./wallpaper.png;
     fonts = {
+      sizes = {
+        applications = 10;
+        terminal = 10;
+        desktop = 10;
+        popups = 10;
+      };
       serif = {
         package = pkgs.liberation_ttf;
         name = "Liberation Serif";
@@ -288,6 +302,43 @@ in
       temperature.day = 4500;
       temperature.night = 4500;
     };
+
+    swayidle = {
+      enable = true;
+      events = [
+        { event = "before-sleep"; command = "${pkgs.swaylock-effects}/bin/swaylock -f"; }
+        { event = "lock"; command = "${pkgs.swaylock-effects}/bin/swaylock -f"; }
+      ];
+      timeouts = [
+        {
+          timeout = 300;
+          command = "${pkgs.swaylock-effects}/bin/swaylock -f";
+        }
+        {
+          timeout = 600;
+          command = "${pkgs.niri}/bin/niri msg action power-off-monitors";
+        }
+        {
+          timeout = 900;
+          command = "systemctl suspend";
+        }
+      ];
+    };
+  };
+
+  systemd.user.services.swaybg = {
+    Unit = {
+      Description = "Swaybg wallpaper daemon";
+      After = [ "graphical-session-pre.target" ];
+      PartOf = [ "graphical-session.target" ];
+    };
+    Service = {
+      ExecStart = "${pkgs.swaybg}/bin/swaybg -i ${config.stylix.image} -m fill";
+      Restart = "on-failure";
+    };
+    Install = {
+      WantedBy = [ "graphical-session.target" ];
+    };
   };
 
   home.packages = [
@@ -312,12 +363,12 @@ in
   xdg.configFile = {
     "swappy/config".text = ''
       [Default]
-      save_dir=$HOME/Downloads
+      save_dir=${config.home.homeDirectory}/Pictures/Screenshots
       save_filename_format=screenshot-%Y-%m-%d_%H-%M-%S.png
       save_command=
     '';
     "niri/config.kdl".source = ./config.kdl;
-    };
+  };
 
   home.enableNixpkgsReleaseCheck = false;
 

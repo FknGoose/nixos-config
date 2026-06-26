@@ -32,7 +32,14 @@
   };
 
   # BOOT
-  boot.kernelParams = [ "snd_intel_dspcfg.dsp_driver=3" ]; # Force kernel to use SOF driver
+  boot.kernelParams = [
+    "snd_intel_dspcfg.dsp_driver=3" # Force kernel to use SOF driver
+    # Silent boot
+    "quiet"
+    "loglevel=3"
+    "systemd.show_status=auto"
+    "udev.log_level=3"
+  ];
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.systemd-boot.windows = {
@@ -67,9 +74,11 @@
         command = ''
           ${pkgs.tuigreet}/bin/tuigreet \
           --time \
-          --time-format  %dddd, '%A, %d.%m.%Y | %R' \
+          --time-format  "%H:%M | %A, %d.%m.%y" \
+          --greeting "Access restricted to authorised personnel only" \
           --remember \
           --remember-session \
+          --session-wrapper "${pkgs.systemd}/bin/systemd-cat --identifier=niri" \
           --sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions \
           --cmd niri
         '';
@@ -152,7 +161,7 @@
   security.rtkit.enable = true;
   hardware.enableRedistributableFirmware = true;
   i18n.extraLocales = [ "en_IE.UTF-8/UTF-8" ];
-  security.pam.services.swaylock = {};
+  security.pam.services.swaylock = { };
 
   # This option defines the first version of NixOS you have installed on this particular machine,
   # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.
