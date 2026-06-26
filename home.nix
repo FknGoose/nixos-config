@@ -384,7 +384,7 @@ in
               width 1
               active-color "#${config.lib.stylix.colors.base0D}"
           }
-          border { off }
+          border { off; }
       }
     '';
   };
