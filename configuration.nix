@@ -47,6 +47,16 @@
     hostName = "nixos-x390";
     networkmanager.enable = true;
   };
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+    settings = {
+      General = {
+        Experimental = true;
+        FastConnectable = true;
+      };
+    };
+  };
   # Font packages
   fonts = {
     packages = with pkgs; [
@@ -113,7 +123,8 @@
   };
   systemd.user.services.pipewire.environment.ALSA_CONFIG_UCM2 = "/dev/null";
   systemd.user.services.wireplumber.environment.ALSA_CONFIG_UCM2 = "/dev/null";
-  systemd.services.alsa-volumes = { # Preserve settings after reinstallation
+  systemd.services.alsa-volumes = {
+    # Preserve settings after reinstallation
     description = "Set ALSA volumes for Realtek ALC257 on boot";
     enable = true;
     script = ''

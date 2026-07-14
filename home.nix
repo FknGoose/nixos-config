@@ -1,7 +1,8 @@
 { config, pkgs, lib, inputs, ... }:
 
 let
-  pkgsInsecure = import inputs.nixpkgs { # Due to https://github.com/NixOS/nixpkgs/issues/526914
+  pkgsInsecure = import inputs.nixpkgs {
+    # Due to https://github.com/NixOS/nixpkgs/issues/526914
     inherit (pkgs.stdenv.hostPlatform) system;
     config.permittedInsecurePackages = [ "electron-39.8.10" ];
   };
@@ -47,7 +48,8 @@ let
     nixpak.yukigram = prev.nixpak.yukigram.override {
       customNixpakConfig = { sloth, ... }: {
         bubblewrap = {
-          bind.rw = [ # Bind additional folders for convenience
+          bind.rw = [
+            # Bind additional folders for convenience
             (sloth.concat' sloth.homeDir "/Downloads")
             (sloth.mkdir (sloth.concat' sloth.appDataDir "/io.github.yukigram"))
             (sloth.concat' sloth.xdgDataHome "/io.github.yukigram")
@@ -57,7 +59,8 @@ let
     };
   })).packages.nixpak;
 
-  balsa-sandbox = mkNixPak { # Complex and fragile. Consider removal
+  balsa-sandbox = mkNixPak {
+    # Complex and fragile. Consider removal
     config = { sloth, ... }: {
       imports = [
         inputs.nixpak.nixpakModules.gui-base
