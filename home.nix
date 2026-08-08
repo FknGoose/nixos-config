@@ -174,6 +174,7 @@ in
     yukigram-sandbox
     zen-sandbox.config.env
     balsa-sandbox.config.env
+    pkgs.onlyoffice-desktopeditors
   ];
 
   home.enableNixpkgsReleaseCheck = false;
