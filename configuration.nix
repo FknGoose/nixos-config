@@ -32,6 +32,9 @@
   };
 
   # BOOT
+  boot.extraModprobeConfig = ''
+    options thinkpad_acpi fan_control=1
+  '';
   boot.kernelParams = [ "snd_intel_dspcfg.dsp_driver=3" ]; # Force kernel to use SOF driver
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -115,6 +118,32 @@
       CPU_ENERGY_PERF_POLICY_ON_BAT = "balance_power";
       START_CHARGE_THRESH_BAT0 = 70;
       STOP_CHARGE_THRESH_BAT0 = 80;
+    };
+  };
+  services.thinkfan = {
+    enable = true;
+    settings = {
+      sensors = [
+        {
+          hwmon = "/sys/class/hwmon";
+          name = "coretemp";
+          indices = [ 1 2 3 4 5 ];
+        }
+      ];
+      fans = [
+        {
+          tpacpi = "/proc/acpi/ibm/fan";
+        }
+      ];
+      levels = [
+        [ 0 0 48 ]
+        [ 1 44 54 ]
+        [ 2 50 58 ]
+        [ 3 54 63 ]
+        [ 6 60 70 ]
+        [ 7 65 75 ]
+        [ "level full-speed" 75 32767 ]
+      ];
     };
   };
   # Disable UCM due to https://github.com/alsa-project/alsa-ucm-conf/issues/785
