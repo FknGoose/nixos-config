@@ -49,6 +49,10 @@
   networking = {
     hostName = "nixos-x390";
     networkmanager.enable = true;
+    firewall = {
+      enable = true;
+      checkReversePath = "loose";
+    };
   };
   hardware.bluetooth = {
     enable = true;
