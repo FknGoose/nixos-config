@@ -260,7 +260,7 @@ in
     enable = true;
     settings = {
       email = "busygose@gmail.com";
-      pinentry = "qt";
+      pinentry = pkgs.pinentry-qt;
     };
   };
 
