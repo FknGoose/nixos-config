@@ -264,6 +264,18 @@ in
     };
   };
 
+  programs.yazi = {
+    enable = true;
+    enableBashIntegration = true;
+    settings = {
+      mgr = {
+        show_hidden = true;
+        sort_by = "natural";
+        sort_dir_first = true;
+      };
+    };
+  };
+
   programs.swaylock = {
     enable = true;
     package = pkgs.swaylock-effects;
