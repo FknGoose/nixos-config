@@ -369,7 +369,6 @@ in
       save_command=
     '';
     "niri/config.kdl".source = ./config.kdl;
-    "niri/censored.kdl".text = "";
     "niri/colors.kdl".text = ''
       layout {
           focus-ring {
