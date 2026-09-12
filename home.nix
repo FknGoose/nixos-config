@@ -323,7 +323,7 @@ in
   stylix = {
     enable = true;
     autoEnable = true;
-    base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
+    base16Scheme = "${pkgs.base16-schemes}/share/themes/brewer.yaml";
     image = ./wallpaper.png;
     polarity = "dark";
     fonts = {
@@ -428,7 +428,8 @@ in
     zen-sandbox.config.env
     pkgs.pwvucontrol
     pkgs.gsimplecal
-    pkgs.loupe
+    pkgs.swayimg
+    pkgs.brightnessctl
     pkgs.grim
     pkgs.slurp
     pkgs.swappy
