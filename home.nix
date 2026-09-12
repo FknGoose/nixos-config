@@ -224,7 +224,7 @@ in
           format-icons = {
             default = [ "󰕿" "󰖀" "󰕾" ];
           };
-          on-click = "pwvucontrol";
+          on-click = "pavucontrol";
         };
 
         battery = {
@@ -426,7 +426,7 @@ in
     inputs.nixpkgs-mattermost.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mattermost-desktop
     yukigram-sandbox
     zen-sandbox.config.env
-    pkgs.pwvucontrol
+    pkgs.pavucontrol
     pkgs.gsimplecal
     pkgs.swayimg
     pkgs.brightnessctl
