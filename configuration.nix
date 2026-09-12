@@ -71,17 +71,7 @@
     enable = true;
     settings = {
       default_session = {
-        command = ''
-          ${pkgs.tuigreet}/bin/tuigreet \
-          --time \
-          --time-format  "%H:%M | %A, %d.%m.%y" \
-          --greeting "Access restricted to authorised personnel only" \
-          --remember \
-          --remember-session \
-          --session-wrapper "${pkgs.systemd}/bin/systemd-cat --identifier=niri" \
-          --sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions \
-          --cmd niri
-        '';
+        command = ''${pkgs.tuigreet}/bin/tuigreet --time --time-format  "%H:%M | %A, %d.%m.%y" --greeting "Access restricted to authorised personnel only" --remember --remember-session --session-wrapper "${pkgs.systemd}/bin/systemd-cat --identifier=niri" --sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions --cmd niri'';
         user = "greeter";
       };
     };
