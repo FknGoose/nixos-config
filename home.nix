@@ -103,6 +103,7 @@ in
   programs.nixvim = {
     enable = true;
     defaultEditor = true;
+    nixpkgs.useGlobalPackages = true;
 
     opts = {
       mouse = "a";
@@ -131,13 +132,13 @@ in
 
     plugins.neo-tree = {
       enable = true;
-      sources = [ "filesystem" ];
-      filesystem = {
-        followCurrentFile.enabled = true;
-        hijackNetrwBehavior = "open_default";
-      };
-      window = {
-        width = 26;
+      settings = {
+        sources = [ "filesystem" ];
+        window.width = 26;
+        filesystem = {
+          follow_current_file.enabled = true;
+          hijack_netrw_behavior = "open_default";
+        };
       };
     };
 
@@ -383,10 +384,10 @@ in
 
     swayidle = {
       enable = true;
-      events = [
-        { event = "before-sleep"; command = "${pkgs.swaylock-effects}/bin/swaylock -f"; }
-        { event = "lock"; command = "${pkgs.swaylock-effects}/bin/swaylock -f"; }
-      ];
+      events = {
+        before-sleep = "${pkgs.swaylock-effects}/bin/swaylock -f";
+        lock = "${pkgs.swaylock-effects}/bin/swaylock -f";
+      };
       timeouts = [
         {
           timeout = 300;
