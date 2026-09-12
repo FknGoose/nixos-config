@@ -354,8 +354,8 @@ in
   services = {
     mako.enable = true;
     swayosd.enable = true;
+    hyprpolkitagent.enable = true;
     blueman-applet.enable = true;
-    polkit-gnome.enable = true;
     network-manager-applet.enable = true;
     cliphist = {
       enable = true;

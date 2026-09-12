@@ -87,7 +87,6 @@
     };
   };
   programs.niri.enable = true;
-  services.desktopManager.plasma6.enable = true;
   services.xserver.xkb = {
     layout = "us,ru";
     options = "grp:alt_shift_toggle";
@@ -121,7 +120,6 @@
     wireplumber.enable = true;
   };
   services.printing.enable = true;
-  services.gnome.gnome-keyring.enable = true;
   services.power-profiles-daemon.enable = false;
   services.tlp = {
     enable = true;
