@@ -44,6 +44,9 @@ binds {
     Mod+Ctrl+Q            { spawn "swaylock"; }
     Mod+Alt+Q             { spawn "systemctl" "suspend"; }
 
+    Mod+P                 { spawn "rofi-rbw"; }
+    Mod+Shift+P           { spawn "rofi-rbw" "--action" "copy"; }
+
     Mod+Left              { focus-column-left; }
     Mod+Right             { focus-column-right; }
     Mod+Down              { focus-window-down; }

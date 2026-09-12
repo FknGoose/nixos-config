@@ -1,11 +1,6 @@
 { config, pkgs, lib, inputs, ... }:
 
 let
-  pkgsInsecure = import inputs.nixpkgs {
-    # Due to https://github.com/NixOS/nixpkgs/issues/526914
-    inherit (pkgs.stdenv.hostPlatform) system;
-    config.permittedInsecurePackages = [ "electron-39.8.10" ];
-  };
 
   mkNixPak = inputs.nixpak.lib.nixpak {
     inherit (pkgs) lib;
@@ -85,6 +80,25 @@ in
     settings.user = {
       name = "FknGoose";
       email = "busygose@gmail.com";
+    };
+  };
+
+  programs.kitty = {
+    enable = true;
+    settings = {
+      tab_bar_style = "hidden";
+      hide_window_decorations = "yes";
+      window_padding_width = 4;
+      enable_audio_bell = false;
+      confirm_os_window_close = 0;
+    };
+    keybindings = {
+      "ctrl+shift+enter" = "no_op";
+      "ctrl+shift+t" = "no_op";
+      "ctrl+shift+w" = "no_op";
+      "ctrl+shift+n" = "no_op";
+      "ctrl+shift+]" = "no_op";
+      "ctrl+shift+[" = "no_op";
     };
   };
 
@@ -168,6 +182,14 @@ in
         layer = "overlay";
         fields = "filename,name,generic,keywords";
       };
+    };
+  };
+
+  programs.rbw = {
+    enable = true;
+    settings = {
+      email = "busygose@gmail.com";
+      pinentry = "qt";
     };
   };
 
@@ -318,7 +340,6 @@ in
     pkgs.btop
     pkgs.freerdp
     pkgs.nixpkgs-fmt
-    pkgsInsecure.bitwarden-desktop
     inputs.nixpkgs-mattermost.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mattermost-desktop
     yukigram-sandbox
     zen-sandbox.config.env
@@ -330,9 +351,17 @@ in
     pkgs.swappy
     pkgs.wl-clipboard
     pkgs.psmisc
+    pkgs.rofi-rbw-wayland
+    pkgs.wtype
+    pkgs.pinentry-qt
   ];
 
   xdg.configFile = {
+    "rofi-rbw.rc".text = ''
+      selector=fuzzel
+      clipboarder=wl-copy
+      typer=wtype
+    '';
     "swappy/config".text = ''
       [Default]
       save_dir=${config.home.homeDirectory}/Pictures/Screenshots
