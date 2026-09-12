@@ -59,42 +59,6 @@ let
     };
   })).packages.nixpak;
 
-  balsa-sandbox = mkNixPak {
-    # Complex and fragile. Consider removal
-    config = { sloth, ... }: {
-      imports = [
-        inputs.nixpak.nixpakModules.gui-base
-        inputs.nixpak.nixpakModules.network
-      ];
-      app.package = pkgs.balsa;
-      app.binPath = "bin/balsa";
-      flatpak.appId = "org.gnome.Balsa";
-      dbus.policies = {
-        "org.desktop.Balsa" = "own";
-        "org.gnome.Balsa" = "own";
-        "org.freedesktop.secrets" = "talk";
-      };
-      bubblewrap = {
-        bind.rw = [
-          (sloth.mkdir (sloth.concat' sloth.homeDir "/.config/balsa"))
-          (sloth.mkdir (sloth.concat' sloth.appCacheDir "/balsa"))
-          (sloth.mkdir (sloth.concat' sloth.xdgStateHome "/balsa"))
-          (sloth.mkdir (sloth.concat' sloth.xdgDataHome "/org.desktop.Balsa"))
-          (sloth.mkdir (sloth.concat' sloth.homeDir "/mail"))
-          (sloth.concat' sloth.homeDir "/mailbox")
-          (sloth.mkdir (sloth.concat' sloth.homeDir "/.gnupg"))
-        ];
-        bind.ro = [
-          "/etc/passwd"
-          "/run/current-system/sw/share/themes"
-          "/run/current-system/sw/share/hunspell"
-          "/etc/cups"
-          "/sys"
-        ];
-      };
-    };
-  };
-
 in
 {
   imports = [
@@ -358,7 +322,6 @@ in
     inputs.nixpkgs-mattermost.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mattermost-desktop
     yukigram-sandbox
     zen-sandbox.config.env
-    balsa-sandbox.config.env
     pkgs.pwvucontrol
     pkgs.gsimplecal
     pkgs.loupe
