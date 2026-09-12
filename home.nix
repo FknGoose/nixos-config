@@ -73,8 +73,6 @@ in
     };
   };
 
-  programs.nixvim.enable = true;
-
   programs.git = {
     enable = true;
     settings.user = {
@@ -100,6 +98,79 @@ in
       "ctrl+shift+]" = "no_op";
       "ctrl+shift+[" = "no_op";
     };
+  };
+
+  programs.nixvim = {
+    enable = true;
+    defaultEditor = true;
+
+    opts = {
+      mouse = "a";
+      number = true;
+      relativenumber = false;
+      shiftwidth = 2;
+      tabstop = 2;
+      expandtab = true;
+      cursorline = true;
+      clipboard = "unnamedplus";
+    };
+
+    plugins.treesitter = {
+      enable = true;
+      settings = {
+        highlight.enable = true;
+        indent.enable = true;
+      };
+      grammarPackages = with pkgs.vimPlugins.nvim-treesitter.builtGrammars; [
+        kdl
+        nix
+        json
+        python
+      ];
+    };
+
+    plugins.neo-tree = {
+      enable = true;
+      sources = [ "filesystem" ];
+      filesystem = {
+        followCurrentFile.enabled = true;
+        hijackNetrwBehavior = "open_default";
+      };
+      window = {
+        width = 26;
+      };
+    };
+
+    plugins.toggleterm = {
+      enable = true;
+      settings = {
+        direction = "horizontal";
+        size = 14;
+        open_mapping = "[[<F4>]]";
+      };
+    };
+
+    autoCmd = [
+      {
+        event = [ "VimEnter" ];
+        command = "Neotree show";
+      }
+    ];
+
+    keymaps = [
+      {
+        mode = "n";
+        key = "<F3>";
+        action = "<cmd>Neotree toggle<CR>";
+        options.desc = "Toggle file tree";
+      }
+      {
+        mode = [ "n" "t" ];
+        key = "<F4>";
+        action = "<cmd>ToggleTerm<CR>";
+        options.desc = "Toggle terminal";
+      }
+    ];
   };
 
   programs.ssh = {

@@ -35,7 +35,7 @@ binds {
 
     Mod+Shift+Slash       { show-hotkey-overlay; }
 
-    Mod+Return            { spawn "alacritty"; }
+    Mod+Return            { spawn "kitty"; }
     Alt+Space             { spawn "fuzzel"; }
     Mod+Q                 { close-window; }
     Mod+Shift+Q           { quit; }
