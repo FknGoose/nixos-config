@@ -8,6 +8,15 @@ recent-windows {
     }
 }
 
+environment {
+    XDG_CURRENT_DESKTOP "niri"
+    EDITOR "nvim"
+    VISUAL "nvim"
+    SUDO_EDITOR "nvim"
+}
+
+spawn-at-startup "systemctl" "--user" "import-environment" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP"
+spawn-at-startup "dbus-update-activation-environment" "--systemd" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP"
 spawn-at-startup "yukigram" "-startintray"
 spawn-at-startup "mattermost-desktop" "--hidden"
 

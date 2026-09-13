@@ -80,7 +80,7 @@
           "--remember-session"
           "--sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions"
           "--cmd niri-session"
-          ];
+        ];
         user = "greeter";
       };
     };

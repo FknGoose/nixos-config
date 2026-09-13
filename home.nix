@@ -109,7 +109,6 @@ in
     enable = true;
     defaultEditor = true;
     nixpkgs.useGlobalPackages = true;
-    globals.mapleader = " ";
     opts = {
       mouse = "a";
       number = true;
@@ -194,12 +193,6 @@ in
         key = "<F4>";
         action = "<cmd>ToggleTerm<CR>";
         options.desc = "Toggle terminal";
-      }
-      {
-        mode = "n";
-        key = "<leader>x";
-        action = "<cmd>lua require('render-markdown').toggle()<CR>";
-        options.desc = "Toggle Markdown checkbox";
       }
     ];
   };
@@ -327,7 +320,7 @@ in
       profile = "fast";
       keep-open = "yes";
       force-window = "immediate";
-      autofit = "60%";
+      autofit = "50%x50%";
     };
   };
 
