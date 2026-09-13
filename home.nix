@@ -66,7 +66,12 @@ in
   home = {
     username = "fkngoose";
     homeDirectory = "/home/fkngoose";
-    sessionVariables.TZ = "Europe/Moscow";
+    sessionVariables = {
+      TZ = "Europe/Moscow";
+      EDITOR = "nvim";
+      VISUAL = "nvim";
+      SUDO_EDITOR = "nvim";
+    };
     language = {
       base = "en_US.UTF-8";
       time = "en_IE.UTF-8";
@@ -104,7 +109,7 @@ in
     enable = true;
     defaultEditor = true;
     nixpkgs.useGlobalPackages = true;
-
+    globals.mapleader = " ";
     opts = {
       mouse = "a";
       number = true;
@@ -115,7 +120,6 @@ in
       cursorline = true;
       clipboard = "unnamedplus";
     };
-
     plugins.treesitter = {
       enable = true;
       settings = {
@@ -129,7 +133,6 @@ in
         python
       ];
     };
-
     plugins.neo-tree = {
       enable = true;
       settings = {
@@ -138,10 +141,33 @@ in
         filesystem = {
           follow_current_file.enabled = true;
           hijack_netrw_behavior = "open_default";
+          filtered_items.hide_dotfiles = false;
         };
       };
     };
-
+    plugins.render-markdown = {
+      enable = true;
+      settings = {
+        checkbox = {
+          enabled = true;
+          unchecked = { icon = "󰄱 "; };
+          checked = { icon = "󰱒 "; };
+        };
+        heading = {
+          enabled = true;
+          sign = false;
+          icons = [ "" "" "" "" "" "" ]; # Без иконок
+          backgrounds = [
+            "RenderMarkdownH1Bg"
+            "RenderMarkdownH2Bg"
+            "RenderMarkdownH3Bg"
+            "RenderMarkdownH4Bg"
+            "RenderMarkdownH5Bg"
+            "RenderMarkdownH6Bg"
+          ];
+        };
+      };
+    };
     plugins.toggleterm = {
       enable = true;
       settings = {
@@ -150,14 +176,12 @@ in
         open_mapping = "[[<F4>]]";
       };
     };
-
     autoCmd = [
       {
         event = [ "VimEnter" ];
         command = "Neotree show";
       }
     ];
-
     keymaps = [
       {
         mode = "n";
@@ -170,6 +194,12 @@ in
         key = "<F4>";
         action = "<cmd>ToggleTerm<CR>";
         options.desc = "Toggle terminal";
+      }
+      {
+        mode = "n";
+        key = "<leader>x";
+        action = "<cmd>lua require('render-markdown').toggle()<CR>";
+        options.desc = "Toggle Markdown checkbox";
       }
     ];
   };
@@ -261,7 +291,7 @@ in
     enable = true;
     settings = {
       email = "busygose@gmail.com";
-      pinentry = pkgs.pinentry-qt;
+      pinentry = pkgs.pinentry-gnome3;
     };
   };
 
@@ -285,6 +315,19 @@ in
       indicator = true;
       timestr = "%H:%M";
       datestr = "%A, %d.%m.%y";
+    };
+  };
+
+  programs.mpv = {
+    enable = true;
+    config = {
+      hwdec = "auto-safe";
+      vo = "gpu-next";
+      gpu-context = "wayland";
+      profile = "fast";
+      keep-open = "yes";
+      force-window = "immediate";
+      autofit = "60%";
     };
   };
 
@@ -438,35 +481,51 @@ in
     pkgs.psmisc
     pkgs.rofi-rbw-wayland
     pkgs.wtype
-    pkgs.pinentry-qt
+    pkgs.pinentry-gnome3
+    pkgs.tauon
   ];
 
-  xdg.configFile = {
-    "rofi-rbw.rc".text = ''
-      selector=fuzzel
-      clipboarder=wl-copy
-      typer=wtype
-    '';
-    "swappy/config".text = ''
-      [Default]
-      save_dir=${config.home.homeDirectory}/Pictures/Screenshots
-      save_filename_format=screenshot-%Y-%m-%d_%H-%M-%S.png
-      save_command=
-    '';
-    "niri/config.kdl".source = ./config.kdl;
-    "niri/colors.kdl".text = ''
-      layout {
-          focus-ring {
-              on
-              width 1
-              active-color "#${config.lib.stylix.colors.base0D}"
-          }
-          border { off; }
-      }
-    '';
+  xdg = {
+    configFile = {
+      "rofi-rbw.rc".text = ''
+        selector=fuzzel
+        clipboarder=wl-copy
+        typer=wtype
+      '';
+      "swappy/config".text = ''
+        [Default]
+        save_dir=${config.home.homeDirectory}/Pictures/Screenshots
+        save_filename_format=screenshot-%Y-%m-%d_%H-%M-%S.png
+        save_command=
+      '';
+      "niri/config.kdl".source = ./config.kdl;
+      "niri/colors.kdl".text = ''
+        layout {
+            focus-ring {
+                on
+                width 2
+                active-color "#${config.lib.stylix.colors.base0D}"
+                inactive-color "#${config.lib.stylix.colors.base02}"
+            }
+            border {
+                off
+            }
+            tab-indicator {
+                active-color "#${config.lib.stylix.colors.base0B}"
+                inactive-color "#${config.lib.stylix.colors.base03}"
+                width 4
+            }
+        }
+      '';
+    };
+    mimeApps = {
+      enable = true;
+      defaultApplications = {
+      "text/plain" = "nvim.desktop";
+      "text/markdown" = "nvim.desktop";
+      };
+    };
   };
-
-  home.enableNixpkgsReleaseCheck = false;
 
   # This value determines the Home Manager release that your
   # configuration is compatible with. This helps avoid breakage

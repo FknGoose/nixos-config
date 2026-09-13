@@ -8,11 +8,18 @@ recent-windows {
     }
 }
 
+
+
 spawn-at-startup "yukigram" "-startintray"
 spawn-at-startup "mattermost-desktop" "--hidden"
 
 animations {
     slowdown 0.5
+}
+
+window-rule {
+    geometry-corner-radius 4
+    clip-to-geometry true
 }
 
 input {
@@ -26,6 +33,7 @@ input {
 
 layout {
     always-center-single-column
+    gaps 4
 }
 
 binds {
@@ -118,9 +126,11 @@ binds {
     Mod+Shift+F           { fullscreen-window; }
     Mod+M                 { maximize-window-to-edges; }
     Mod+C                 { center-column; }
+    Mod+V                 { spawn "sh" "-c" "cliphist list | fuzzel --dmenu | cliphist decode | wl-copy"; }
     Mod+W                 { toggle-column-tabbed-display; }
-    Mod+Shift+Space       { toggle-window-floating; }
-    Mod+Space             { switch-focus-between-floating-and-tiling; }
+    Mod+Shift+T           { toggle-window-floating; }
+    Mod+T                 { switch-focus-between-floating-and-tiling; }
+    Mod+Space             { toggle-overview; }
     Mod+BracketLeft       { consume-or-expel-window-left; }
     Mod+BracketRight      { consume-or-expel-window-right; }
 }
