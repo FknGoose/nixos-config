@@ -521,8 +521,8 @@ in
     mimeApps = {
       enable = true;
       defaultApplications = {
-      "text/plain" = "nvim.desktop";
-      "text/markdown" = "nvim.desktop";
+        "text/plain" = "nvim.desktop";
+        "text/markdown" = "nvim.desktop";
       };
     };
   };

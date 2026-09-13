@@ -71,7 +71,16 @@
     enable = true;
     settings = {
       default_session = {
-        command = ''${pkgs.tuigreet}/bin/tuigreet --time --time-format  "%H:%M | %A, %d.%m.%y" --greeting "Access restricted to authorised personnel only" --remember --remember-session --session-wrapper "${pkgs.systemd}/bin/systemd-cat --identifier=niri" --sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions --cmd niri'';
+        command = lib.concatStringsSep " " [
+          "${pkgs.tuigreet}/bin/tuigreet"
+          "--time"
+          "--time-format '%H:%M | %A, %d.%m.%y'"
+          "--greeting 'Access restricted to authorised personnel only'"
+          "--remember"
+          "--remember-session"
+          "--sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions"
+          "--cmd niri-session"
+          ];
         user = "greeter";
       };
     };
@@ -127,6 +136,7 @@
   environment.sessionVariables = {
     ALSA_CONFIG_UCM2 = "/dev/null";
   };
+  systemd.user.services.niri.enableDefaultPath = false;
   systemd.user.services.pipewire.environment.ALSA_CONFIG_UCM2 = "/dev/null";
   systemd.user.services.wireplumber.environment.ALSA_CONFIG_UCM2 = "/dev/null";
   systemd.services.alsa-volumes = {
