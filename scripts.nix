@@ -20,6 +20,40 @@ let
     done
   '';
 
+  screenshot-area = pkgs.writeShellScriptBin "screenshot-area" ''
+    export PATH="${pkgs.wayfreeze}/bin:${pkgs.grim}/bin:${pkgs.slurp}/bin:${pkgs.swappy}/bin:${pkgs.wl-clipboard}/bin:$PATH"
+    
+    wayfreeze &
+    FREEZE_PID=$!
+    trap 'kill $FREEZE_PID 2>/dev/null || true' EXIT INT TERM
+    sleep 0.05
+
+    TARGET="$1"
+    GEOM=$(slurp)
+    
+    if [ -z "$GEOM" ]; then
+      exit 0
+    fi
+
+    TMP_SHOT=$(mktemp --suffix=.png)
+    grim -g "$GEOM" "$TMP_SHOT"
+    kill $FREEZE_PID 2>/dev/null || true
+
+    case "$TARGET" in
+      "swappy")
+        swappy -f "$TMP_SHOT" -o - | wl-copy
+        ;;
+      "clipboard")
+        wl-copy < "$TMP_SHOT"
+        ;;
+      "edit-only")
+        swappy -f "$TMP_SHOT"
+        ;;
+    esac
+
+    rm -f "$TMP_SHOT"
+  '';
+
   nix-deploy = pkgs.writeShellScriptBin "nix-deploy" ''
     set -e
 
@@ -115,5 +149,6 @@ in
     niri-layout-notify
     rdp-connect
     nix-deploy
+    screenshot-area
   ];
 }

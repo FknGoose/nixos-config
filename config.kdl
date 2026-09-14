@@ -76,9 +76,9 @@ binds {
     XF86MonBrightnessUp   allow-when-locked=true hotkey-overlay-title="Brightness Up" { spawn "swayosd-client" "--brightness" "raise"; }
     XF86MonBrightnessDown allow-when-locked=true hotkey-overlay-title="Brightness Down" { spawn "swayosd-client" "--brightness" "lower"; }
 
-    Print       repeat=false cooldown-ms=500 hotkey-overlay-title="Screenshot Area -> Swappy" { spawn "sh" "-c" "grim -g \"$(slurp)\" - | swappy -f - -o - | wl-copy"; }
-    Ctrl+Print  repeat=false cooldown-ms=500 hotkey-overlay-title="Screenshot Area -> Clipboard" { spawn "sh" "-c" "grim -g \"$(slurp)\" - | wl-copy"; }
-    Shift+Print repeat=false cooldown-ms=500 hotkey-overlay-title="Screenshot Area -> Edit Only" { spawn "sh" "-c" "grim -g \"$(slurp)\" - | swappy -f -"; }
+    Print       repeat=false cooldown-ms=500 hotkey-overlay-title="Screenshot Area -> Swappy" { spawn "screenshot-area" "swappy"; }
+    Ctrl+Print  repeat=false cooldown-ms=500 hotkey-overlay-title="Screenshot Area -> Clipboard" { spawn "screenshot-area" "clipboard"; }
+    Shift+Print repeat=false cooldown-ms=500 hotkey-overlay-title="Screenshot Area -> Edit Only" { spawn "screenshot-area" "edit-only"; }    
     Alt+Print   repeat=false cooldown-ms=1000 hotkey-overlay-title="Toggle GPU Screen Recording" { spawn "sh" "-c" "killall -SIGINT gpu-screen-recorder || (mkdir -p ~/Videos/Screencasts && gpu-screen-recorder -w $(slurp -f '%wx%h+%x+%y') -f 60 -a default_output -o ~/Videos/Screencasts/video-$(date +%Y-%m-%d_%H-%M-%S).mp4)"; }
     Mod+Left  hotkey-overlay-title="Focus Column Left" { focus-column-left; }
     Mod+Right hotkey-overlay-title="Focus Column Right" { focus-column-right; }
