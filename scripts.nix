@@ -225,7 +225,7 @@ let
   rdp-connect = pkgs.writeShellScriptBin "rdp-connect" ''
     set -e
 
-    export PATH="${pkgs.wireproxy}/bin:${pkgs.coreutils}/bin:${pkgs.netcat-openbsd}/bin:$PATH"
+    export PATH="${pkgs.wireproxy}/bin:${pkgs.coreutils}/bin:${pkgs.netcat-openbsd}/bin:${pkgs.freerdp}/bin:$PATH"
 
     WG_CONF="${config.age.secrets.rdp-proxy.path}"
     RDP_PASS_FILE="${config.age.secrets.rdp-pass.path}"
@@ -240,6 +240,9 @@ let
       echo "Stopping tunnel..."
       if [ -n "$WIREPROXY_PID" ]; then
         kill "$WIREPROXY_PID" 2>/dev/null || true
+      fi
+      if [ -n "$ARGS_FILE" ] && [ -f "$ARGS_FILE" ]; then
+        rm -f "$ARGS_FILE"
       fi
     }
     trap cleanup EXIT INT TERM
@@ -267,15 +270,22 @@ let
       RDP_CONNECT_TARGET="127.0.0.1:$PROXY_PORT"
     fi
 
-    echo "Starting xfreerdp to $RDP_CONNECT_TARGET..."
-    ${pkgs.freerdp}/bin/wlfreerdp /v:"$RDP_CONNECT_TARGET" \
-      /u:v_perminov \
-      /from-stdin:force \
-      /drive:Windows,"$LOCAL_SHARE" \
-      +dynamic-resolution \
-      -grab-keyboard \
-      +clipboard \
-      /cert:ignore < "$RDP_PASS_FILE"
+    ARGS_FILE=$(mktemp -p /dev/shm rdp-args.XXXXXX)
+    chmod 600 "$ARGS_FILE"
+
+    cat << EOF > "$ARGS_FILE"
+/v:$RDP_CONNECT_TARGET
+/u:v_perminov
+/p:$(cat "$RDP_PASS_FILE")
+/drive:Windows,$LOCAL_SHARE
++dynamic-resolution
+-grab-keyboard
++clipboard
+/cert:ignore
+EOF
+
+    echo "Starting xfreerdp with args from file..."
+    xfreerdp /args-from:file:"$ARGS_FILE"
   '';
 
 in

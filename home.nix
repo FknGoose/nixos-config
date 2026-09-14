@@ -542,6 +542,7 @@ in
     pkgs.rofi-rbw-wayland
     pkgs.wtype
     pkgs.tauon
+    pkgs.xwayland-satellite
   ];
 
   xdg = {
