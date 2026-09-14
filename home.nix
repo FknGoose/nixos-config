@@ -379,13 +379,6 @@ in
   };
 
   fonts.fontconfig = {
-    enable = true;
-    defaultFonts = {
-      emoji = [ "Noto Color Emoji" ];
-      monospace = [ "JetBrainsMono Nerd Font Mono" ];
-      serif = [ "Liberation Serif" ];
-      sansSerif = [ "Inter" ];
-    };
     hinting = "slight";
     subpixelRendering = "rgb";
   };
@@ -548,7 +541,6 @@ in
     pkgs.psmisc
     pkgs.rofi-rbw-wayland
     pkgs.wtype
-    pkgs.pinentry-gnome3
     pkgs.tauon
   ];
 

@@ -84,7 +84,6 @@
   };
 
   # Desktop Environment
-  services.xserver.enable = true;
   services.greetd = {
     enable = true;
     settings = {
@@ -104,30 +103,23 @@
     };
   };
   programs.niri.enable = true;
-  services.xserver.xkb = {
-    layout = "us,ru";
-    options = "grp:alt_shift_toggle";
-  };
 
   # USERS
   users.users.fkngoose = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" "video" "input" ];
+    extraGroups = [ "wheel" "networkmanager" ];
     packages = with pkgs; [ ];
     homeMode = "700";
     initialPassword = "1234"; # Don't forget to set a password with ‘passwd’
   };
 
   # PROGRAMS
-  programs.firefox.enable = true;
-  programs.git.enable = true;
   programs.throne.enable = true;
   programs.throne.tunMode.enable = true;
   programs.gpu-screen-recorder.enable = true;
 
   # SERVICES
   services.blueman.enable = true;
-  services.libinput.enable = true;
   services.pipewire = {
     enable = true;
     pulse.enable = true;
@@ -136,7 +128,6 @@
     wireplumber.enable = true;
   };
   services.printing.enable = true;
-  services.power-profiles-daemon.enable = false;
   services.tlp = {
     enable = true;
     pd.enable = true;
@@ -179,7 +170,6 @@
   environment.sessionVariables = {
     ALSA_CONFIG_UCM2 = "/dev/null";
   };
-  systemd.user.services.niri.enableDefaultPath = false;
   systemd.user.services.pipewire.environment.ALSA_CONFIG_UCM2 = "/dev/null";
   systemd.user.services.wireplumber.environment.ALSA_CONFIG_UCM2 = "/dev/null";
   systemd.services.alsa-volumes = {
