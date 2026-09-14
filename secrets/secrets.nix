@@ -5,4 +5,5 @@ in
   "subscription.age".publicKeys = [ fkngoose ];
   "rdp-proxy.age".publicKeys = [ fkngoose ];
   "rdp-pass.age".publicKeys = [ fkngoose ];
+  "mail.json.age".publicKeys = [ fkngoose ];
 }

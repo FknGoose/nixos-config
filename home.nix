@@ -1,11 +1,7 @@
 { config, pkgs, lib, inputs, ... }:
 
+
 let
-  pkgsInsecure = import inputs.nixpkgs {
-    # Due to https://github.com/NixOS/nixpkgs/issues/526914
-    inherit (pkgs.stdenv.hostPlatform) system;
-    config.permittedInsecurePackages = [ "electron-39.8.10" ];
-  };
 
   mkNixPak = inputs.nixpak.lib.nixpak {
     inherit (pkgs) lib;
@@ -59,53 +55,24 @@ let
     };
   })).packages.nixpak;
 
-  balsa-sandbox = mkNixPak {
-    # Complex and fragile. Consider removal
-    config = { sloth, ... }: {
-      imports = [
-        inputs.nixpak.nixpakModules.gui-base
-        inputs.nixpak.nixpakModules.network
-      ];
-      app.package = pkgs.balsa;
-      app.binPath = "bin/balsa";
-      flatpak.appId = "org.gnome.Balsa";
-      dbus.policies = {
-        "org.desktop.Balsa" = "own";
-        "org.gnome.Balsa" = "own";
-        "org.freedesktop.secrets" = "talk";
-      };
-      bubblewrap = {
-        bind.rw = [
-          (sloth.mkdir (sloth.concat' sloth.homeDir "/.config/balsa"))
-          (sloth.mkdir (sloth.concat' sloth.appCacheDir "/balsa"))
-          (sloth.mkdir (sloth.concat' sloth.xdgStateHome "/balsa"))
-          (sloth.mkdir (sloth.concat' sloth.xdgDataHome "/org.desktop.Balsa"))
-          (sloth.mkdir (sloth.concat' sloth.homeDir "/mail"))
-          (sloth.concat' sloth.homeDir "/mailbox")
-          (sloth.mkdir (sloth.concat' sloth.homeDir "/.gnupg"))
-        ];
-        bind.ro = [
-          "/etc/passwd"
-          "/run/current-system/sw/share/themes"
-          "/run/current-system/sw/share/hunspell"
-          "/etc/cups"
-          "/sys"
-        ];
-      };
-    };
-  };
-
 in
 {
   imports = [
     ./scripts.nix
     inputs.agenix.homeManagerModules.default
+    inputs.stylix.homeModules.stylix
+    inputs.nixvim.homeModules.nixvim
   ];
 
   home = {
     username = "fkngoose";
     homeDirectory = "/home/fkngoose";
-    sessionVariables.TZ = "Europe/Moscow";
+    sessionVariables = {
+      TZ = "Europe/Moscow";
+      EDITOR = "nvim";
+      VISUAL = "nvim";
+      SUDO_EDITOR = "nvim";
+    };
     language = {
       base = "en_US.UTF-8";
       time = "en_IE.UTF-8";
@@ -118,6 +85,122 @@ in
       name = "FknGoose";
       email = "busygose@gmail.com";
     };
+  };
+
+  programs.kitty = {
+    enable = true;
+    settings = {
+      tab_bar_style = "hidden";
+      hide_window_decorations = "yes";
+      window_padding_width = 4;
+      enable_audio_bell = false;
+      confirm_os_window_close = 0;
+    };
+    keybindings = {
+      "ctrl+shift+enter" = "no_op";
+      "ctrl+shift+t" = "no_op";
+      "ctrl+shift+w" = "no_op";
+      "ctrl+shift+n" = "no_op";
+      "ctrl+shift+]" = "no_op";
+      "ctrl+shift+[" = "no_op";
+    };
+  };
+
+  programs.nixvim = {
+    enable = true;
+    defaultEditor = true;
+    nixpkgs.useGlobalPackages = true;
+    opts = {
+      mouse = "a";
+      number = true;
+      relativenumber = false;
+      shiftwidth = 2;
+      tabstop = 2;
+      expandtab = true;
+      cursorline = true;
+      clipboard = "unnamedplus";
+      langmap = lib.concatStringsSep "," [
+        "ёйцукенгшщзхъфывапролджэячсмитьбю;`qwertyuiop[]asdfghjkl\\;'zxcvbnm\\,."
+        "ЁЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ;~QWERTYUIOP{}ASDFGHJKL:\\\"ZXCVBNM<>"
+        "№;#"
+      ];
+    };
+    plugins.treesitter = {
+      enable = true;
+      settings = {
+        highlight.enable = true;
+        indent.enable = true;
+      };
+      grammarPackages = with pkgs.vimPlugins.nvim-treesitter.builtGrammars; [
+        kdl
+        nix
+        json
+        python
+      ];
+    };
+    plugins.neo-tree = {
+      enable = true;
+      settings = {
+        sources = [ "filesystem" "git_status" ];
+        close_if_last_window = true;
+        sort_case_insensitive = true;
+        window.width = 26;
+        filesystem = {
+          use_libuv_file_watcher = true;
+          follow_current_file.enabled = true;
+          hijack_netrw_behavior = "open_default";
+          filtered_items = {
+            hide_dotfiles = false;
+            hide_gitignored = false;
+          };
+        };
+      };
+    };
+    plugins.render-markdown = {
+      enable = true;
+      settings = {
+        checkbox = {
+          enabled = true;
+          unchecked = { icon = "󰄱 "; };
+          checked = { icon = "󰱒 "; };
+        };
+        heading = {
+          enabled = true;
+          sign = false;
+          icons = [ "" "" "" "" "" "" ]; # Без иконок
+          backgrounds = [
+            "RenderMarkdownH1Bg"
+            "RenderMarkdownH2Bg"
+            "RenderMarkdownH3Bg"
+            "RenderMarkdownH4Bg"
+            "RenderMarkdownH5Bg"
+            "RenderMarkdownH6Bg"
+          ];
+        };
+      };
+    };
+    plugins.toggleterm = {
+      enable = true;
+      settings = {
+        direction = "horizontal";
+        size = 14;
+        open_mapping = "[[<F4>]]";
+      };
+    };
+    keymaps = [
+      {
+        mode = "n";
+        key = "<F3>";
+        action = "<cmd>Neotree toggle<CR>";
+        options.desc = "Toggle file tree";
+      }
+      {
+        mode = [ "n" "t" ];
+        key = "<F4>";
+        action = "<cmd>ToggleTerm<CR>";
+        options.desc = "Toggle terminal";
+      }
+    ];
   };
 
   programs.ssh = {
@@ -134,6 +217,144 @@ in
 
   programs.vesktop = {
     enable = true;
+  };
+  programs.waybar = {
+    enable = true;
+    systemd.enable = true;
+    style = ''
+      #custom-recorder {
+        color: #${config.lib.stylix.colors.base08};
+      }
+    '';
+    settings = {
+      mainBar = {
+        layer = "top";
+        position = "top";
+        height = 24;
+        modules-left = [
+          "niri/workspaces"
+        ];
+        modules-center = [
+          "clock"
+        ];
+        modules-right = [
+          "niri/language"
+          "pulseaudio"
+          "battery"
+          "tray"
+          "custom/recorder"
+        ];
+        "niri/workspaces" = {
+          format = "{index}";
+        };
+        clock = {
+          format = "{:%H:%M | %A, %d.%m.%y}";
+          on-click = "gsimplecal";
+          tooltip-format = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
+        };
+        "niri/language" = {
+          format = "{}";
+          format-en = "US";
+          format-ru = "RU";
+        };
+        "custom/recorder" = {
+          exec-if = "pgrep -f gpu-screen-recorder";
+          exec = "echo ' REC'";
+          interval = 1;
+          on-click = "screen-record-toggle";
+        };
+        pulseaudio = {
+          format = "{icon} {volume}%";
+          format-muted = "󰝟 Muted";
+          format-icons = {
+            default = [ "󰕿" "󰖀" "󰕾" ];
+          };
+          on-click = "pavucontrol";
+        };
+
+        battery = {
+          states = {
+            warning = 20;
+            critical = 10;
+          };
+          format = "{icon} {capacity}%";
+          format-charging = "󱐥 {capacity}%";
+          format-plugged = "󰚥 {capacity}%";
+          format-icons = [ "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰁀" "󰁁" "󰁂" "󰁃" "󰁄" ];
+        };
+
+        tray = {
+          icon-size = 16;
+          spacing = 10;
+        };
+      };
+    };
+  };
+
+  programs.fuzzel = {
+    enable = true;
+    settings = {
+      main = {
+        layer = "overlay";
+        fields = "filename,name,generic,keywords";
+      };
+      border = {
+        width = 2;
+        radius = 4;
+      };
+    };
+  };
+
+  programs.rbw = {
+    enable = true;
+    settings = {
+      email = "busygose@gmail.com";
+      pinentry = pkgs.pinentry-gnome3;
+    };
+  };
+
+  programs.yazi = {
+    enable = true;
+    enableBashIntegration = true;
+    settings = {
+      mgr = {
+        show_hidden = true;
+        sort_by = "natural";
+        sort_dir_first = true;
+      };
+    };
+    keymap = {
+      mgr.prepend_keymap = [
+        { on = [ "р" ]; run = "leave"; desc = "Left (h)"; }
+        { on = [ "о" ]; run = "arrow 1"; desc = "Down (j)"; }
+        { on = [ "л" ]; run = "arrow -1"; desc = "Up (k)"; }
+        { on = [ "д" ]; run = "enter"; desc = "Right (l)"; }
+      ];
+    };
+  };
+
+  programs.swaylock = {
+    enable = true;
+    package = pkgs.swaylock-effects;
+    settings = {
+      clock = true;
+      indicator = true;
+      timestr = "%H:%M";
+      datestr = "%A, %d.%m.%y";
+    };
+  };
+
+  programs.mpv = {
+    enable = true;
+    config = {
+      hwdec = "auto-safe";
+      vo = "gpu-next";
+      gpu-context = "wayland";
+      profile = "fast";
+      keep-open = "yes";
+      force-window = "immediate";
+      autofit = "50%x50%";
+    };
   };
 
   age = {
@@ -168,20 +389,214 @@ in
     hinting = "slight";
     subpixelRendering = "rgb";
   };
+  stylix = {
+    enable = true;
+    autoEnable = true;
+    base16Scheme = "${pkgs.base16-schemes}/share/themes/brewer.yaml";
+    image = ./wallpaper.png;
+    polarity = "dark";
+    fonts = {
+      sizes = {
+        applications = 10;
+        terminal = 10;
+        desktop = 10;
+        popups = 10;
+      };
+      serif = {
+        package = pkgs.liberation_ttf;
+        name = "Liberation Serif";
+      };
+      sansSerif = {
+        package = pkgs.inter;
+        name = "Inter";
+      };
+      monospace = {
+        package = pkgs.nerd-fonts.jetbrains-mono;
+        name = "JetBrainsMono Nerd Font Mono";
+      };
+      emoji = {
+        package = pkgs.noto-fonts-color-emoji;
+        name = "Noto Color Emoji";
+      };
+    };
+    cursor = {
+      name = "phinger-cursors-dark";
+      package = pkgs.phinger-cursors;
+      size = 24;
+    };
+    icons = {
+      enable = true;
+      dark = "Papirus-Dark";
+      package = pkgs.papirus-icon-theme;
+    };
+    targets.zen-browser.enable = false;
+    targets.gtk.extraCss = ''
+      window.csd, window.csd decoration {
+        box-shadow: none;
+        border-radius: 0;
+      }
+    '';
+  };
+
+  services = {
+    batsignal = {
+      enable = true;
+      extraArgs = [
+        "-w"
+        "20"
+        "-c"
+        "10"
+        "-d"
+        "5"
+      ];
+    };
+    mako = {
+      enable = true;
+      settings = {
+        border-radius = 4;
+        default-timeout = 5000;
+        margin = "10";
+        padding = "8";
+        border-size = 2;
+      };
+      extraConfig = ''
+        [app-name=layout-osd]
+        anchor=center
+        default-timeout=400
+        width=140
+        height=90
+        text-alignment=center
+        border-radius=4
+        border-size=2
+        border-color=#${config.lib.stylix.colors.base0D}
+        background-color=#${config.lib.stylix.colors.base00}
+        text-color=#${config.lib.stylix.colors.base05}
+        font=${config.stylix.fonts.monospace.name} 32
+      '';
+    };
+    swayosd.enable = true;
+    hyprpolkitagent.enable = true;
+    blueman-applet.enable = true;
+    network-manager-applet.enable = true;
+    cliphist = {
+      enable = true;
+      allowImages = true;
+    };
+    wlsunset = {
+      enable = true;
+      latitude = "29.54";
+      longitude = "-39.38";
+      temperature.day = 4500;
+      temperature.night = 4500;
+    };
+
+    swayidle = {
+      enable = true;
+      events = {
+        before-sleep = "${pkgs.swaylock-effects}/bin/swaylock -f && ${pkgs.rbw}/bin/rbw lock";
+        lock = "${pkgs.swaylock-effects}/bin/swaylock -f && ${pkgs.rbw}/bin/rbw lock";
+      };
+      timeouts = [
+        {
+          timeout = 300;
+          command = "${pkgs.swaylock-effects}/bin/swaylock -f";
+        }
+        {
+          timeout = 600;
+          command = "${pkgs.niri}/bin/niri msg action power-off-monitors";
+        }
+        {
+          timeout = 900;
+          command = "systemctl suspend";
+        }
+      ];
+    };
+  };
+
+  systemd.user.services.swaybg = {
+    Unit = {
+      Description = "Swaybg wallpaper daemon";
+      After = [ "graphical-session.target" ];
+      PartOf = [ "graphical-session.target" ];
+      Requisite = [ "graphical-session.target" ];
+    };
+    Service = {
+      ExecStart = "${pkgs.swaybg}/bin/swaybg -i ${config.stylix.image} -m fill";
+      Restart = "on-failure";
+      RestartSec = "1s";
+    };
+    Install = {
+      WantedBy = [ "graphical-session.target" ];
+    };
+  };
 
   home.packages = [
-    pkgs.htop
+    pkgs.btop
     pkgs.freerdp
     pkgs.nixpkgs-fmt
-    pkgsInsecure.bitwarden-desktop
-    inputs.nixpkgs-mattermost.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mattermost-desktop
     yukigram-sandbox
     zen-sandbox.config.env
-    balsa-sandbox.config.env
     pkgs.onlyoffice-desktopeditors
+    pkgs.pavucontrol
+    pkgs.gsimplecal
+    pkgs.swayimg
+    pkgs.brightnessctl
+    pkgs.grim
+    pkgs.slurp
+    pkgs.swappy
+    pkgs.wl-clipboard
+    pkgs.psmisc
+    pkgs.rofi-rbw-wayland
+    pkgs.wtype
+    pkgs.pinentry-gnome3
+    pkgs.tauon
   ];
 
-  home.enableNixpkgsReleaseCheck = false;
+  xdg = {
+    configFile = {
+      "rofi-rbw.rc".text = ''
+        selector=fuzzel
+        clipboarder=wl-copy
+        typer=wtype
+        target=menu
+      '';
+      "swappy/config".text = ''
+        [Default]
+        save_dir=${config.home.homeDirectory}/Pictures/Screenshots
+        save_filename_format=screenshot-%Y-%m-%d_%H-%M-%S.png
+        save_command=
+      '';
+      "niri/config.kdl".source = ./config.kdl;
+      "niri/colors.kdl".text = ''
+        layout {
+            focus-ring {
+                on
+                width 2
+                active-color "#${config.lib.stylix.colors.base0D}"
+                inactive-color "#${config.lib.stylix.colors.base02}"
+            }
+            border {
+                off
+            }
+            tab-indicator {
+                active-color "#${config.lib.stylix.colors.base0B}"
+                inactive-color "#${config.lib.stylix.colors.base03}"
+                width 4
+            }
+        }
+        overview {
+            backdrop-color "#${config.lib.stylix.colors.base00}"
+        }
+      '';
+    };
+    mimeApps = {
+      enable = true;
+      defaultApplications = {
+        "text/plain" = "nvim.desktop";
+        "text/markdown" = "nvim.desktop";
+      };
+    };
+  };
 
   # This value determines the Home Manager release that your
   # configuration is compatible with. This helps avoid breakage

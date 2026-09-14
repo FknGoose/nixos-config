@@ -35,7 +35,15 @@
   boot.extraModprobeConfig = ''
     options thinkpad_acpi fan_control=1
   '';
-  boot.kernelParams = [ "snd_intel_dspcfg.dsp_driver=3" ]; # Force kernel to use SOF driver
+  boot.kernelParams = [
+    "snd_intel_dspcfg.dsp_driver=3" # Force kernel to use SOF driver
+    # Silent boot
+    "quiet"
+    "loglevel=3"
+    "systemd.show_status=auto"
+    "udev.log_level=3"
+  ];
+
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.systemd-boot.windows = {
@@ -69,17 +77,33 @@
     packages = with pkgs; [
       inter
       nerd-fonts.jetbrains-mono
-      liberation_ttf
       noto-fonts-color-emoji
       noto-fonts
       corefonts
     ];
   };
 
-  # X11
+  # Desktop Environment
   services.xserver.enable = true;
-  services.displayManager.sddm.enable = true;
-  services.desktopManager.plasma6.enable = true;
+  services.greetd = {
+    enable = true;
+    settings = {
+      default_session = {
+        command = lib.concatStringsSep " " [
+          "${pkgs.tuigreet}/bin/tuigreet"
+          "--time"
+          "--time-format '%H:%M | %A, %d.%m.%y'"
+          "--greeting 'Access restricted to authorised personnel only'"
+          "--remember"
+          "--remember-session"
+          "--sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions"
+          "--cmd niri-session"
+        ];
+        user = "greeter";
+      };
+    };
+  };
+  programs.niri.enable = true;
   services.xserver.xkb = {
     layout = "us,ru";
     options = "grp:alt_shift_toggle";
@@ -88,7 +112,7 @@
   # USERS
   users.users.fkngoose = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" "video" ];
+    extraGroups = [ "wheel" "networkmanager" "video" "input" ];
     packages = with pkgs; [ ];
     homeMode = "700";
     initialPassword = "1234"; # Don't forget to set a password with ‘passwd’
@@ -99,8 +123,10 @@
   programs.git.enable = true;
   programs.throne.enable = true;
   programs.throne.tunMode.enable = true;
+  programs.gpu-screen-recorder.enable = true;
 
   # SERVICES
+  services.blueman.enable = true;
   services.libinput.enable = true;
   services.pipewire = {
     enable = true;
@@ -110,7 +136,6 @@
     wireplumber.enable = true;
   };
   services.printing.enable = true;
-  services.gnome.gnome-keyring.enable = true;
   services.power-profiles-daemon.enable = false;
   services.tlp = {
     enable = true;
@@ -154,6 +179,7 @@
   environment.sessionVariables = {
     ALSA_CONFIG_UCM2 = "/dev/null";
   };
+  systemd.user.services.niri.enableDefaultPath = false;
   systemd.user.services.pipewire.environment.ALSA_CONFIG_UCM2 = "/dev/null";
   systemd.user.services.wireplumber.environment.ALSA_CONFIG_UCM2 = "/dev/null";
   systemd.services.alsa-volumes = {
@@ -172,10 +198,11 @@
 
 
   # MISC
-  nixpkgs.config.allowUnfree = true; # For propietary drivers
+  nixpkgs.config.allowUnfree = true;
   security.rtkit.enable = true;
   hardware.enableRedistributableFirmware = true;
   i18n.extraLocales = [ "en_IE.UTF-8/UTF-8" ];
+  security.pam.services.swaylock = { };
 
   # This option defines the first version of NixOS you have installed on this particular machine,
   # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.
