@@ -283,6 +283,10 @@ in
         layer = "overlay";
         fields = "filename,name,generic,keywords";
       };
+      border = {
+        width = 2;
+        radius = 4;
+      };
     };
   };
 
@@ -370,7 +374,21 @@ in
     hinting = "slight";
     subpixelRendering = "rgb";
   };
-
+  gtk = {
+    enable = true;
+    gtk3.extraCss = ''
+      window.csd, window.csd decoration {
+        box-shadow: none;
+        border-radius: 0;
+      }
+    '';
+    gtk4.extraCss = ''
+      window.csd, window.csd decoration {
+        box-shadow: none;
+        border-radius: 0;
+      }
+    '';
+  };
   stylix = {
     enable = true;
     autoEnable = true;
@@ -547,6 +565,9 @@ in
                 inactive-color "#${config.lib.stylix.colors.base03}"
                 width 4
             }
+        }
+        overview {
+            backdrop-color "#${config.lib.stylix.colors.base00}"
         }
       '';
     };

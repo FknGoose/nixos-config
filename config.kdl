@@ -1,10 +1,15 @@
 include "colors.kdl"
 
+prefer-no-csd
+
 recent-windows {
     open-delay-ms 150
     previews {
         max-height 320
         max-scale 0.5
+    }
+    highlight {
+        corner-radius 4
     }
 }
 
@@ -54,7 +59,7 @@ binds {
 
     Mod+Shift+Slash hotkey-overlay-title="Show Hotkey Help" { show-hotkey-overlay; }
     Mod+Q           hotkey-overlay-title="Close Active Window" { close-window; }
-    Mod+Shift+Q     hotkey-overlay-title="Quit Niri" { quit; }
+    Mod+Shift+Q     hotkey-overlay-title="Quit Niri" { quit skip-confirmation=true; }
     Mod+Ctrl+Q      hotkey-overlay-title="Lock Screen" { spawn "sh" "-c" "rbw lock; swaylock"; }
     Mod+Alt+Q       hotkey-overlay-title="Suspend System" { spawn "systemctl" "suspend"; }
 
