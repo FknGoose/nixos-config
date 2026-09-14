@@ -71,7 +71,7 @@ in
       TZ = "Europe/Moscow";
       EDITOR = "nvim";
       VISUAL = "nvim";
-      SUDO_EDITOR = "nvim";
+      SUDO_EDITOR = "nvim"; 
     };
     language = {
       base = "en_US.UTF-8";
@@ -230,7 +230,7 @@ in
       mainBar = {
         layer = "top";
         position = "top";
-        height = 24;
+        height = 16;
         modules-left = [
           "niri/workspaces"
         ];
