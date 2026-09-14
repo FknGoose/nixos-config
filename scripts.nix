@@ -99,7 +99,7 @@ let
     fi
 
     echo "Starting xfreerdp to $RDP_CONNECT_TARGET..."
-    ${pkgs.freerdp}/bin/xfreerdp /v:"$RDP_CONNECT_TARGET" \
+    ${pkgs.freerdp}/bin/wlfreerdp /v:"$RDP_CONNECT_TARGET" \
       /u:v_perminov \
       /from-stdin:force \
       /drive:Windows,"$LOCAL_SHARE" \

@@ -417,6 +417,13 @@ in
   services = {
     mako = {
       enable = true;
+      settings = {
+        borderRadius = 4;
+        defaultTimeout = 5000; # 5 секунд для обычных уведомлений вместо дефолтных
+        margin = "10";
+        padding = "8";
+        borderSize = 2;
+      };
       extraConfig = ''
         [app-name=layout-osd]
         anchor=center
@@ -451,8 +458,8 @@ in
     swayidle = {
       enable = true;
       events = {
-        before-sleep = "${pkgs.swaylock-effects}/bin/swaylock -f";
-        lock = "${pkgs.swaylock-effects}/bin/swaylock -f";
+        before-sleep = "${pkgs.swaylock-effects}/bin/swaylock -f && ${pkgs.rbw}/bin/rbw lock";
+        lock = "${pkgs.swaylock-effects}/bin/swaylock -f && ${pkgs.rbw}/bin/rbw lock";
       };
       timeouts = [
         {
@@ -492,7 +499,6 @@ in
     pkgs.btop
     pkgs.freerdp
     pkgs.nixpkgs-fmt
-    inputs.nixpkgs-mattermost.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mattermost-desktop
     yukigram-sandbox
     zen-sandbox.config.env
     pkgs.pavucontrol
@@ -516,6 +522,7 @@ in
         selector=fuzzel
         clipboarder=wl-copy
         typer=wtype
+        target=menu
       '';
       "swappy/config".text = ''
         [Default]

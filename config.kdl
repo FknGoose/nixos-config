@@ -55,7 +55,7 @@ binds {
     Mod+Shift+Slash hotkey-overlay-title="Show Hotkey Help" { show-hotkey-overlay; }
     Mod+Q           hotkey-overlay-title="Close Active Window" { close-window; }
     Mod+Shift+Q     hotkey-overlay-title="Quit Niri" { quit; }
-    Mod+Ctrl+Q      hotkey-overlay-title="Lock Screen" { spawn "swaylock"; }
+    Mod+Ctrl+Q      hotkey-overlay-title="Lock Screen" { spawn "sh" "-c" "rbw lock; swaylock"; }
     Mod+Alt+Q       hotkey-overlay-title="Suspend System" { spawn "systemctl" "suspend"; }
 
     Mod+Return      hotkey-overlay-title="Terminal (Kitty)" { spawn "kitty"; }
@@ -71,11 +71,10 @@ binds {
     XF86MonBrightnessUp   allow-when-locked=true hotkey-overlay-title="Brightness Up" { spawn "swayosd-client" "--brightness" "raise"; }
     XF86MonBrightnessDown allow-when-locked=true hotkey-overlay-title="Brightness Down" { spawn "swayosd-client" "--brightness" "lower"; }
 
-    Print       hotkey-overlay-title="Screenshot Area -> Swappy" { spawn "sh" "-c" "grim -g \"$(slurp)\" - | swappy -f - -o - | wl-copy"; }
-    Ctrl+Print  hotkey-overlay-title="Screenshot Area -> Clipboard" { spawn "sh" "-c" "grim -g \"$(slurp)\" - | wl-copy"; }
-    Shift+Print hotkey-overlay-title="Screenshot Area -> Edit Only" { spawn "sh" "-c" "grim -g \"$(slurp)\" - | swappy -f -"; }
-    Alt+Print   hotkey-overlay-title="Toggle GPU Screen Recording" { spawn "sh" "-c" "killall -SIGINT gpu-screen-recorder || (mkdir -p ~/Videos/Screencasts && gpu-screen-recorder -w $(slurp -f '%wx%h+%x+%y') -f 60 -a default_output -o ~/Videos/Screencasts/video-$(date +%Y-%m-%d_%H-%M-%S).mp4)"; }
-
+    Print       repeat=false cooldown-ms=500 hotkey-overlay-title="Screenshot Area -> Swappy" { spawn "sh" "-c" "grim -g \"$(slurp)\" - | swappy -f - -o - | wl-copy"; }
+    Ctrl+Print  repeat=false cooldown-ms=500 hotkey-overlay-title="Screenshot Area -> Clipboard" { spawn "sh" "-c" "grim -g \"$(slurp)\" - | wl-copy"; }
+    Shift+Print repeat=false cooldown-ms=500 hotkey-overlay-title="Screenshot Area -> Edit Only" { spawn "sh" "-c" "grim -g \"$(slurp)\" - | swappy -f -"; }
+    Alt+Print   repeat=false cooldown-ms=1000 hotkey-overlay-title="Toggle GPU Screen Recording" { spawn "sh" "-c" "killall -SIGINT gpu-screen-recorder || (mkdir -p ~/Videos/Screencasts && gpu-screen-recorder -w $(slurp -f '%wx%h+%x+%y') -f 60 -a default_output -o ~/Videos/Screencasts/video-$(date +%Y-%m-%d_%H-%M-%S).mp4)"; }
     Mod+Left  hotkey-overlay-title="Focus Column Left" { focus-column-left; }
     Mod+Right hotkey-overlay-title="Focus Column Right" { focus-column-right; }
     Mod+Down  hotkey-overlay-title="Focus Window Down" { focus-window-down; }
