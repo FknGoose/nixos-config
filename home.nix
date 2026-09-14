@@ -218,6 +218,11 @@ in
   programs.waybar = {
     enable = true;
     systemd.enable = true;
+    style = ''
+      #custom-recorder {
+        color: #${config.lib.stylix.colors.base08};
+      }
+    '';
     settings = {
       mainBar = {
         layer = "top";
@@ -234,6 +239,7 @@ in
           "pulseaudio"
           "battery"
           "tray"
+          "custom/recorder"
         ];
         "niri/workspaces" = {
           format = "{index}";
@@ -247,6 +253,12 @@ in
           format = "{}";
           format-en = "US";
           format-ru = "RU";
+        };
+        "custom/recorder" = {
+          exec-if = "pgrep -f gpu-screen-recorder";
+          exec = "echo ' REC'";
+          interval = 1;
+          on-click = "screen-record-toggle";
         };
         pulseaudio = {
           format = "{icon} {volume}%";

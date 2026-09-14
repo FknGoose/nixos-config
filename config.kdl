@@ -79,7 +79,7 @@ binds {
     Print       repeat=false cooldown-ms=500 hotkey-overlay-title="Screenshot Area -> Swappy" { spawn "screenshot-area" "swappy"; }
     Ctrl+Print  repeat=false cooldown-ms=500 hotkey-overlay-title="Screenshot Area -> Clipboard" { spawn "screenshot-area" "clipboard"; }
     Shift+Print repeat=false cooldown-ms=500 hotkey-overlay-title="Screenshot Area -> Edit Only" { spawn "screenshot-area" "edit-only"; }    
-    Alt+Print   repeat=false cooldown-ms=1000 hotkey-overlay-title="Toggle GPU Screen Recording" { spawn "sh" "-c" "killall -SIGINT gpu-screen-recorder || (mkdir -p ~/Videos/Screencasts && gpu-screen-recorder -w $(slurp -f '%wx%h+%x+%y') -f 60 -a default_output -o ~/Videos/Screencasts/video-$(date +%Y-%m-%d_%H-%M-%S).mp4)"; }
+    Alt+Print repeat=false cooldown-ms=1000 hotkey-overlay-title="Toggle GPU Screen Recording" { spawn "screen-record-toggle"; }
     Mod+Left  hotkey-overlay-title="Focus Column Left" { focus-column-left; }
     Mod+Right hotkey-overlay-title="Focus Column Right" { focus-column-right; }
     Mod+Down  hotkey-overlay-title="Focus Window Down" { focus-window-down; }
