@@ -10,15 +10,14 @@ recent-windows {
 
 environment {
     XDG_CURRENT_DESKTOP "niri"
+    XDG_SESSION_TYPE "wayland"
     EDITOR "nvim"
     VISUAL "nvim"
     SUDO_EDITOR "nvim"
 }
 
-spawn-at-startup "systemctl" "--user" "import-environment" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP"
-spawn-at-startup "dbus-update-activation-environment" "--systemd" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP"
+spawn-at-startup "dbus-update-activation-environment" "--systemd" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP" "XDG_SESSION_TYPE"
 spawn-at-startup "yukigram" "-startintray"
-spawn-at-startup "mattermost-desktop" "--hidden"
 
 animations {
     slowdown 0.5
@@ -35,6 +34,13 @@ input {
             layout "us,ru"
             options "grp:alt_shift_toggle"
         }
+    }
+    touchpad {
+        tap
+        natural-scroll
+    }
+    mouse {
+        natural-scroll
     }
 }
 
