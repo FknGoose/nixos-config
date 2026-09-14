@@ -123,7 +123,7 @@ in
         "ёйцукенгшщзхъфывапролджэячсмитьбю;`qwertyuiop[]asdfghjkl\\;'zxcvbnm\\,."
         "ЁЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ;~QWERTYUIOP{}ASDFGHJKL:\\\"ZXCVBNM<>"
         "№;#"
-     ];
+      ];
     };
     plugins.treesitter = {
       enable = true;
@@ -386,21 +386,6 @@ in
     hinting = "slight";
     subpixelRendering = "rgb";
   };
-  gtk = {
-    enable = true;
-    gtk3.extraCss = ''
-      window.csd, window.csd decoration {
-        box-shadow: none;
-        border-radius: 0;
-      }
-    '';
-    gtk4.extraCss = ''
-      window.csd, window.csd decoration {
-        box-shadow: none;
-        border-radius: 0;
-      }
-    '';
-  };
   stylix = {
     enable = true;
     autoEnable = true;
@@ -442,17 +427,34 @@ in
       package = pkgs.papirus-icon-theme;
     };
     targets.zen-browser.enable = false;
+    targets.gtk.extraCss = ''
+      window.csd, window.csd decoration {
+        box-shadow: none;
+        border-radius: 0;
+      }
+    '';
   };
 
   services = {
+    batsignal = {
+      enable = true;
+      extraArgs = [
+        "-w"
+        "20"
+        "-c"
+        "10"
+        "-d"
+        "5"
+      ];
+    };
     mako = {
       enable = true;
       settings = {
-        borderRadius = 4;
-        defaultTimeout = 5000; # 5 секунд для обычных уведомлений вместо дефолтных
+        border-radius = 4;
+        default-timeout = 5000;
         margin = "10";
         padding = "8";
-        borderSize = 2;
+        border-size = 2;
       };
       extraConfig = ''
         [app-name=layout-osd]
