@@ -3,6 +3,23 @@
 let
   hostName = if osConfig != null then osConfig.networking.hostName else "nixos-x390";
 
+  niri-layout-notify = pkgs.writeShellScriptBin "niri-layout-notify" ''
+    export PATH="${pkgs.niri}/bin:${pkgs.jq}/bin:${pkgs.libnotify}/bin:$PATH"
+    
+    niri msg --json event-stream | while read -r line; do
+      case "$line" in
+        *'"KeyboardLayoutSwitched"'*)
+          idx=$(echo "$line" | jq -r '.KeyboardLayoutSwitched.idx // empty')
+          if [ "$idx" = "0" ]; then
+            notify-send -a layout-osd -h string:x-canonical-private-synchronous:layout-osd "EN"
+          elif [ "$idx" = "1" ]; then
+            notify-send -a layout-osd -h string:x-canonical-private-synchronous:layout-osd "RU"
+          fi
+          ;;
+      esac
+    done
+  '';
+
   nix-deploy = pkgs.writeShellScriptBin "nix-deploy" ''
     set -e
 
@@ -95,6 +112,7 @@ let
 in
 {
   home.packages = [
+    niri-layout-notify
     rdp-connect
     nix-deploy
   ];

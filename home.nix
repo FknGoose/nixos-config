@@ -1,5 +1,6 @@
 { config, pkgs, lib, inputs, ... }:
 
+
 let
 
   mkNixPak = inputs.nixpak.lib.nixpak {
@@ -118,6 +119,11 @@ in
       expandtab = true;
       cursorline = true;
       clipboard = "unnamedplus";
+      langmap = lib.concatStringsSep "," [
+        "ёйцукенгшщзхъфывапролджэячсмитьбю;`qwertyuiop[]asdfghjkl\\;'zxcvbnm\\,."
+        "ЁЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ;~QWERTYUIOP{}ASDFGHJKL:\\\"ZXCVBNM<>"
+        "№;#"
+     ];
     };
     plugins.treesitter = {
       enable = true;
@@ -135,12 +141,18 @@ in
     plugins.neo-tree = {
       enable = true;
       settings = {
-        sources = [ "filesystem" ];
+        sources = [ "filesystem" "git_status" ];
+        close_if_last_window = true;
+        sort_case_insensitive = true;
         window.width = 26;
         filesystem = {
+          use_libuv_file_watcher = true;
           follow_current_file.enabled = true;
           hijack_netrw_behavior = "open_default";
-          filtered_items.hide_dotfiles = false;
+          filtered_items = {
+            hide_dotfiles = false;
+            hide_gitignored = false;
+          };
         };
       };
     };
@@ -175,12 +187,6 @@ in
         open_mapping = "[[<F4>]]";
       };
     };
-    autoCmd = [
-      {
-        event = [ "VimEnter" ];
-        command = "Neotree show";
-      }
-    ];
     keymaps = [
       {
         mode = "n";
@@ -298,6 +304,14 @@ in
         sort_dir_first = true;
       };
     };
+    keymap = {
+      mgr.prepend_keymap = [
+        { on = [ "р" ]; run = "leave"; desc = "Left (h)"; }
+        { on = [ "о" ]; run = "arrow 1"; desc = "Down (j)"; }
+        { on = [ "л" ]; run = "arrow -1"; desc = "Up (k)"; }
+        { on = [ "д" ]; run = "enter"; desc = "Right (l)"; }
+      ];
+    };
   };
 
   programs.swaylock = {
@@ -401,7 +415,23 @@ in
   };
 
   services = {
-    mako.enable = true;
+    mako = {
+      enable = true;
+      extraConfig = ''
+        [app-name=layout-osd]
+        anchor=center
+        default-timeout=400
+        width=140
+        height=90
+        text-alignment=center
+        border-radius=4
+        border-size=2
+        border-color=#${config.lib.stylix.colors.base0D}
+        background-color=#${config.lib.stylix.colors.base00}
+        text-color=#${config.lib.stylix.colors.base05}
+        font=${config.stylix.fonts.monospace.name} 32
+      '';
+    };
     swayosd.enable = true;
     hyprpolkitagent.enable = true;
     blueman-applet.enable = true;

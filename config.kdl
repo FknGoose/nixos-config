@@ -18,6 +18,7 @@ environment {
 
 spawn-at-startup "dbus-update-activation-environment" "--systemd" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP" "XDG_SESSION_TYPE"
 spawn-at-startup "yukigram" "-startintray"
+spawn-at-startup "niri-layout-notify"
 
 animations {
     slowdown 0.5
@@ -38,9 +39,9 @@ input {
     touchpad {
         tap
         natural-scroll
-    }
-    mouse {
-        natural-scroll
+        dwt
+        dwtp
+        drag true
     }
 }
 
