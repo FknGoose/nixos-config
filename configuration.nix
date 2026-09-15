@@ -60,6 +60,13 @@
     firewall = {
       enable = true;
       checkReversePath = "loose";
+      trustedInterfaces = [ "Meta" ];
+      extraCommands = ''
+        iptables -I OUTPUT -o lo -p tcp -m multiport --dports 7890,9090 \
+        -m owner ! --uid-owner 1000 \
+        -m owner ! --uid-owner 0 \
+        -j REJECT --reject-with tcp-reset
+      '';
     };
   };
   hardware.bluetooth = {
@@ -113,9 +120,7 @@
     initialPassword = "1234"; # Don't forget to set a password with ‘passwd’
   };
 
-  # PROGRAMS
-  programs.throne.enable = true;
-  programs.throne.tunMode.enable = true;
+  # PROGRAMS:
   programs.gpu-screen-recorder.enable = true;
 
   # SERVICES
@@ -126,6 +131,13 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     wireplumber.enable = true;
+  };
+  services.mihomo = {
+    enable = true;
+    tunMode = true;
+    processesInfo = true;
+    webui = pkgs.metacubexd;
+    configFile = config.age.secrets.mihomo.path;
   };
   services.printing.enable = true;
   services.tlp = {
@@ -188,6 +200,11 @@
 
 
   # MISC
+  age.identityPaths = [ "/home/fkngoose/.ssh/id_ed25519" ];
+  age.secrets.mihomo = {
+    file = ./secrets/mihomo.yaml.age;
+    mode = "400";
+  };
   nixpkgs.config.allowUnfree = true;
   security.rtkit.enable = true;
   hardware.enableRedistributableFirmware = true;

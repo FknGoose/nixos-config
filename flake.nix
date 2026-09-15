@@ -34,6 +34,7 @@
       modules = [
         ./configuration.nix
         nixos-hardware.nixosModules.lenovo-thinkpad-x390
+        inputs.agenix.nixosModules.default
         home-manager.nixosModules.home-manager
         {
           home-manager = {

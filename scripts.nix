@@ -225,56 +225,26 @@ let
   rdp-connect = pkgs.writeShellScriptBin "rdp-connect" ''
     set -e
 
-    export PATH="${pkgs.wireproxy}/bin:${pkgs.coreutils}/bin:${pkgs.netcat-openbsd}/bin:${pkgs.freerdp}/bin:$PATH"
+    export PATH="${pkgs.coreutils}/bin:${pkgs.freerdp}/bin:$PATH"
 
-    WG_CONF="${config.age.secrets.rdp-proxy.path}"
     RDP_PASS_FILE="${config.age.secrets.rdp-pass.path}"
     LOCAL_SHARE="${config.home.homeDirectory}/Windows"
-    RDP_SERVER_IP="192.168.49.2"
-    RDP_SERVER_PORT="3389"
-    PROXY_PORT="33890"
+    RDP_SERVER="192.168.49.2:3389"
 
     mkdir -p "$LOCAL_SHARE"
 
+    ARGS_FILE=$(mktemp -p /dev/shm rdp-args.XXXXXX)
+    chmod 600 "$ARGS_FILE"
+
     cleanup() {
-      echo "Stopping tunnel..."
-      if [ -n "$WIREPROXY_PID" ]; then
-        kill "$WIREPROXY_PID" 2>/dev/null || true
-      fi
       if [ -n "$ARGS_FILE" ] && [ -f "$ARGS_FILE" ]; then
         rm -f "$ARGS_FILE"
       fi
     }
     trap cleanup EXIT INT TERM
 
-    echo "Checking direct connectivity to $RDP_SERVER_IP..."
-    if nc -z -w 1 "$RDP_SERVER_IP" "$RDP_SERVER_PORT" >/dev/null 2>&1; then
-      echo "Direct connection is available. Bypassing WireGuard proxy..."
-      RDP_CONNECT_TARGET="$RDP_SERVER_IP:$RDP_SERVER_PORT"
-    else
-      echo "Direct connection unavailable. Starting userspace WireGuard proxy..."
-      wireproxy -c "$WG_CONF" >/dev/null 2>&1 &
-      WIREPROXY_PID=$!
-      echo "Waiting for tunnel to establish on port $PROXY_PORT..."
-      timeout=50
-
-      while ! nc -z 127.0.0.1 "$PROXY_PORT" >/dev/null 2>&1; do
-        sleep 0.1
-        timeout=$((timeout - 1))
-        if [ "$timeout" -le 0 ]; then
-          echo "Error: Tunnel failed to start" >&2
-          exit 1
-        fi
-      done
-      echo "Tunnel is ready."
-      RDP_CONNECT_TARGET="127.0.0.1:$PROXY_PORT"
-    fi
-
-    ARGS_FILE=$(mktemp -p /dev/shm rdp-args.XXXXXX)
-    chmod 600 "$ARGS_FILE"
-
     cat << EOF > "$ARGS_FILE"
-/v:$RDP_CONNECT_TARGET
+/v:$RDP_SERVER
 /u:v_perminov
 /p:$(cat "$RDP_PASS_FILE")
 /drive:Windows,$LOCAL_SHARE
@@ -282,12 +252,13 @@ let
 -grab-keyboard
 +clipboard
 /cert:ignore
+/network:auto
++auto-reconnect
 EOF
 
-    echo "Starting xfreerdp with args from file..."
+    echo "Connecting directly to $RDP_SERVER..."
     xfreerdp /args-from:file:"$ARGS_FILE"
   '';
-
 in
 {
   home.packages = [
