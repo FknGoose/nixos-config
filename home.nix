@@ -464,14 +464,6 @@ in
       enable = true;
       allowImages = true;
     };
-    wlsunset = {
-      enable = true;
-      latitude = "29.54";
-      longitude = "-39.38";
-      temperature.day = 4500;
-      temperature.night = 4500;
-    };
-
     swayidle = {
       enable = true;
       events = {
@@ -532,6 +524,7 @@ in
     pkgs.wtype
     pkgs.tauon
     pkgs.xwayland-satellite
+    pkgs.hyprsunset
   ];
 
   xdg = {
