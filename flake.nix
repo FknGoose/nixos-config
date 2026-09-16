@@ -40,8 +40,9 @@
     {
       formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-tree;
       nixosConfigurations.nixos-x390 = nixpkgs.lib.nixosSystem {
+        specialArgs = { inherit inputs; };
         modules = [
-          ./configuration.nix
+          ./hosts/nixos-x390
           nixos-hardware.nixosModules.lenovo-thinkpad-x390
           inputs.agenix.nixosModules.default
           home-manager.nixosModules.home-manager
@@ -52,7 +53,7 @@
               useGlobalPkgs = true;
               useUserPackages = true;
               extraSpecialArgs = { inherit inputs; };
-              users.fkngoose = ./home.nix;
+              users.fkngoose = ./modules/home;
             };
           }
         ];
@@ -60,3 +61,4 @@
 
     };
 }
+

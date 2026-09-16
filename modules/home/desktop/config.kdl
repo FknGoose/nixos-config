@@ -1,0 +1,59 @@
+include "colors.kdl"
+include "binds.kdl"
+
+input {
+    keyboard {
+        xkb {
+            layout "us,ru"
+            options "grp:alt_shift_toggle"
+        }
+    }
+    touchpad {
+        tap
+        natural-scroll
+        dwt
+        dwtp
+        drag true
+    }
+}
+
+environment {
+    XDG_CURRENT_DESKTOP "niri"
+    XDG_SESSION_TYPE "wayland"
+}
+
+spawn-at-startup "dbus-update-activation-environment" "--systemd" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP" "XDG_SESSION_TYPE"
+spawn-at-startup "niri-layout-notify"
+spawn-at-startup "xwayland-satellite"
+spawn-at-startup "hyprsunset" "-t" "4500"
+spawn-at-startup "io.github.yukigram"
+spawn-at-startup "zen-beta"
+
+prefer-no-csd
+
+recent-windows {
+    open-delay-ms 150
+    previews {
+        max-height 320
+        max-scale 0.5
+    }
+    highlight {
+        corner-radius 4
+    }
+}
+
+animations {
+    slowdown 0.5
+}
+
+window-rule {
+    geometry-corner-radius 4
+    clip-to-geometry true
+}
+
+layout {
+    always-center-single-column
+    gaps 4
+}
+
+

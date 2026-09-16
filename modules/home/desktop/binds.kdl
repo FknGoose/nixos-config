@@ -1,63 +1,3 @@
-include "colors.kdl"
-
-prefer-no-csd
-
-recent-windows {
-    open-delay-ms 150
-    previews {
-        max-height 320
-        max-scale 0.5
-    }
-    highlight {
-        corner-radius 4
-    }
-}
-
-environment {
-    XDG_CURRENT_DESKTOP "niri"
-    XDG_SESSION_TYPE "wayland"
-    EDITOR "nvim"
-    VISUAL "nvim"
-    SUDO_EDITOR "nvim" 
-}
-
-spawn-at-startup "dbus-update-activation-environment" "--systemd" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP" "XDG_SESSION_TYPE"
-spawn-at-startup "niri-layout-notify"
-spawn-at-startup "xwayland-satellite"
-spawn-at-startup "hyprsunset" "-t" "4500"
-spawn-at-startup "io.github.yukigram"
-spawn-at-startup "zen-beta"
-
-animations {
-    slowdown 0.5
-}
-
-window-rule {
-    geometry-corner-radius 4
-    clip-to-geometry true
-}
-
-input {
-    keyboard {
-        xkb {
-            layout "us,ru"
-            options "grp:alt_shift_toggle"
-        }
-    }
-    touchpad {
-        tap
-        natural-scroll
-        dwt
-        dwtp
-        drag true
-    }
-}
-
-layout {
-    always-center-single-column
-    gaps 4
-}
-
 binds {
 
     Mod+Shift+Slash hotkey-overlay-title="Show Hotkey Help" { show-hotkey-overlay; }
@@ -155,3 +95,4 @@ binds {
     Mod+BracketLeft  hotkey-overlay-title="Consume Window into Column (Left)" { consume-or-expel-window-left; }
     Mod+BracketRight hotkey-overlay-title="Consume Window into Column (Right)" { consume-or-expel-window-right; }
 }
+
