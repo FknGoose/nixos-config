@@ -370,6 +370,15 @@ in
     };
   };
 
+  programs.nh = {
+    enable = true;
+    flake = "${config.home.homeDirectory}/nixos-config";
+    clean = {
+      enable = true;
+      extraArgs = "--keep-since 4d --keep 3";
+    };
+  };
+
   age = {
     identityPaths = [ "${config.home.homeDirectory}/.ssh/id_ed25519" ];
     secrets = { 
