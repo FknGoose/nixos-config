@@ -547,8 +547,7 @@ in
       "qt6ct"             = { name = "Qt6 Settings"; noDisplay = true; };
       "cups"              = { name = "Manage Printing"; noDisplay = true; };
       "nixos-manual"      = { name = "NixOS Manual"; noDisplay = true; };
-      "blueman-adapters"  = { name = "Bluetooth Adapters"; noDisplay = true; };
-      };
+      "blueman-adapters"  = { name = "Bluetooth Adapters"; noDisplay = true; }; 
     };
     configFile = {
       "xdg-desktop-portal/niri-portals.conf".text = ''
