@@ -4,6 +4,27 @@ let
   hostName = if osConfig != null then osConfig.networking.hostName else "nixos-x390";
   accentRed = "#${config.lib.stylix.colors.base08}";
 
+  yazi-chooser = pkgs.writeShellScriptBin "yazi-chooser" ''
+    set -e
+
+    multiple="$1"
+    directory="$2"
+    save="$3"
+    path="$4"
+    out="$5"
+
+    cmd="${pkgs.yazi}/bin/yazi"
+    termcmd="${pkgs.kitty}/bin/kitty --class=yazi-filechooser -e"
+
+    if [ "$save" = "1" ]; then
+      exec $termcmd $cmd "$path" --chooser-file="$out"
+    elif [ "$directory" = "1" ]; then
+      exec $termcmd $cmd "$path" --chooser-file="$out" --cwd-file="$out"
+    else
+      exec $termcmd $cmd "$path" --chooser-file="$out"
+    fi
+  '';
+
   record-border = pkgs.runCommandCC "record-border"
     {
       nativeBuildInputs = [ pkgs.pkg-config ];
@@ -267,5 +288,6 @@ in
     nix-deploy
     screenshot-area
     screen-record-toggle
+    yazi-chooser
   ];
 }

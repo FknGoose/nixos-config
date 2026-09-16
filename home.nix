@@ -17,6 +17,16 @@ let
       app.package = inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.beta;
       app.binPath = "bin/zen-beta";
       flatpak.appId = "app.zen_browser.Zen";
+      dbus = {
+        enable = true;
+        policies = {
+          "org.freedesktop.DBus" = "talk";
+          "org.freedesktop.portal.*" = "talk";
+          "org.mozilla.zen.*" = "own";
+          "org.mozilla.firefox.*" = "own";
+          "org.mpris.MediaPlayer2.*" = "own";
+        };
+      };
       bubblewrap = {
         bind.rw = [
           "/dev/shm"
@@ -568,6 +578,18 @@ in
       };
     };
     configFile = {
+      "xdg-desktop-portal/niri-portals.conf".text = ''
+        [preferred]
+        default=gnome;gtk
+        org.freedesktop.impl.portal.FileChooser=termfilechooser
+      '';
+      "xdg-desktop-portal-termfilechooser/config".text = ''
+        [filechooser]
+        cmd=yazi-chooser
+        default_dir=$HOME/Downloads
+        open_mode=suggested
+        save_mode=last
+      '';
       "rofi-rbw.rc".text = ''
         selector=fuzzel
         clipboarder=wl-copy

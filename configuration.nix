@@ -110,6 +110,7 @@
     };
   };
   programs.niri.enable = true;
+  xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-termfilechooser ];
 
   # USERS
   users.users.fkngoose = {
