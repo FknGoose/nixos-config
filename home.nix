@@ -65,16 +65,7 @@ let
     };
   })).packages.nixpak;
 
-  pwa-mattermost = pkgs.writeShellScriptBin "pwa-mattermost" ''
-    exec ${zen-sandbox.config.env}/bin/zen-beta --new-window \
-      "data:text/html,<script>window.open('https://mattermost.baumanracing.ru','_self','menubar=no,toolbar=no,location=no,status=no');</script>"
-  '';
  
-  pwa-aistudio = pkgs.writeShellScriptBin "pwa-aistudio" ''
-    exec ${zen-sandbox.config.env}/bin/zen-beta --new-window \
-      "data:text/html,<script>window.open('https://aistudio.google.com','_self','menubar=no,toolbar=no,location=no,status=no');</script>"
-  '';
-
 in
 {
   imports = [
@@ -532,8 +523,6 @@ in
     pkgs.nixpkgs-fmt
     yukigram-sandbox
     zen-sandbox.config.env
-    pwa-mattermost
-    pwa-aistudio
     pkgs.onlyoffice-desktopeditors
     pkgs.pavucontrol
     pkgs.gsimplecal
@@ -559,22 +548,6 @@ in
       "cups"              = { name = "Manage Printing"; noDisplay = true; };
       "nixos-manual"      = { name = "NixOS Manual"; noDisplay = true; };
       "blueman-adapters"  = { name = "Bluetooth Adapters"; noDisplay = true; };
-      "mattermost-pwa" = {
-        name = "Mattermost";
-        genericName = "Team Messenger";
-        exec = "${pwa-mattermost}/bin/pwa-mattermost";
-        icon = "mattermost";
-        terminal = false;
-        categories = [ "Network" "InstantMessaging" ];
-      };
-
-      "aistudio-pwa" = {
-        name = "Google AI Studio";
-        genericName = "AI Workspace";
-        exec = "${pwa-aistudio}/bin/pwa-aistudio";
-        icon = "google-gemini";
-        terminal = false;
-        categories = [ "Development" "Utility" ];
       };
     };
     configFile = {
