@@ -1,5 +1,10 @@
-{ config, pkgs, lib, inputs, ... }:
-
+{
+  config,
+  pkgs,
+  lib,
+  inputs,
+  ...
+}:
 
 let
 
@@ -50,22 +55,22 @@ let
     };
   };
 
-  yukigram-sandbox = (inputs.yukigram.d.${pkgs.stdenv.hostPlatform.system}.override (prev: {
-    nixpak.yukigram = prev.nixpak.yukigram.override {
-      customNixpakConfig = { sloth, ... }: {
-        bubblewrap = {
-          bind.rw = [
-            # Bind additional folders for convenience
-            (sloth.concat' sloth.homeDir "/Downloads")
-            (sloth.mkdir (sloth.concat' sloth.appDataDir "/io.github.yukigram"))
-            (sloth.concat' sloth.xdgDataHome "/io.github.yukigram")
-          ];
+  yukigram-sandbox =
+    (inputs.yukigram.d.${pkgs.stdenv.hostPlatform.system}.override (prev: {
+      nixpak.yukigram = prev.nixpak.yukigram.override {
+        customNixpakConfig = { sloth, ... }: {
+          bubblewrap = {
+            bind.rw = [
+              # Bind additional folders for convenience
+              (sloth.concat' sloth.homeDir "/Downloads")
+              (sloth.mkdir (sloth.concat' sloth.appDataDir "/io.github.yukigram"))
+              (sloth.concat' sloth.xdgDataHome "/io.github.yukigram")
+            ];
+          };
         };
       };
-    };
-  })).packages.nixpak;
+    })).packages.nixpak;
 
- 
 in
 {
   imports = [
@@ -82,8 +87,8 @@ in
       TZ = "Europe/Moscow";
       EDITOR = "nvim";
       VISUAL = "nvim";
-      SUDO_EDITOR = "nvim";      
-      TERMINAL = "kitty";   
+      SUDO_EDITOR = "nvim";
+      TERMINAL = "kitty";
     };
     language = {
       base = "en_US.UTF-8";
@@ -153,7 +158,10 @@ in
     plugins.neo-tree = {
       enable = true;
       settings = {
-        sources = [ "filesystem" "git_status" ];
+        sources = [
+          "filesystem"
+          "git_status"
+        ];
         close_if_last_window = true;
         sort_case_insensitive = true;
         window.width = 26;
@@ -173,13 +181,24 @@ in
       settings = {
         checkbox = {
           enabled = true;
-          unchecked = { icon = "󰄱 "; };
-          checked = { icon = "󰱒 "; };
+          unchecked = {
+            icon = "󰄱 ";
+          };
+          checked = {
+            icon = "󰱒 ";
+          };
         };
         heading = {
           enabled = true;
           sign = false;
-          icons = [ "" "" "" "" "" "" ]; # Без иконок
+          icons = [
+            ""
+            ""
+            ""
+            ""
+            ""
+            ""
+          ]; # Без иконок
           backgrounds = [
             "RenderMarkdownH1Bg"
             "RenderMarkdownH2Bg"
@@ -207,7 +226,10 @@ in
         options.desc = "Toggle file tree";
       }
       {
-        mode = [ "n" "t" ];
+        mode = [
+          "n"
+          "t"
+        ];
         key = "<F4>";
         action = "<cmd>ToggleTerm<CR>";
         options.desc = "Toggle terminal";
@@ -279,7 +301,11 @@ in
           format = "{icon} {volume}%";
           format-muted = "󰝟 Muted";
           format-icons = {
-            default = [ "󰕿" "󰖀" "󰕾" ];
+            default = [
+              "󰕿"
+              "󰖀"
+              "󰕾"
+            ];
           };
           on-click = "pavucontrol";
         };
@@ -292,7 +318,19 @@ in
           format = "{icon} {capacity}%";
           format-charging = "󱐥 {capacity}%";
           format-plugged = "󰚥 {capacity}%";
-          format-icons = [ "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰁀" "󰁁" "󰁂" "󰁃" "󰁄" ];
+          format-icons = [
+            "󰁺"
+            "󰁻"
+            "󰁼"
+            "󰁽"
+            "󰁾"
+            "󰁿"
+            "󰁀"
+            "󰁁"
+            "󰁂"
+            "󰁃"
+            "󰁄"
+          ];
         };
 
         tray = {
@@ -338,10 +376,26 @@ in
     };
     keymap = {
       mgr.prepend_keymap = [
-        { on = [ "р" ]; run = "leave"; desc = "Left (h)"; }
-        { on = [ "о" ]; run = "arrow 1"; desc = "Down (j)"; }
-        { on = [ "л" ]; run = "arrow -1"; desc = "Up (k)"; }
-        { on = [ "д" ]; run = "enter"; desc = "Right (l)"; }
+        {
+          on = [ "р" ];
+          run = "leave";
+          desc = "Left (h)";
+        }
+        {
+          on = [ "о" ];
+          run = "arrow 1";
+          desc = "Down (j)";
+        }
+        {
+          on = [ "л" ];
+          run = "arrow -1";
+          desc = "Up (k)";
+        }
+        {
+          on = [ "д" ];
+          run = "enter";
+          desc = "Right (l)";
+        }
       ];
     };
   };
@@ -381,7 +435,7 @@ in
 
   age = {
     identityPaths = [ "${config.home.homeDirectory}/.ssh/id_ed25519" ];
-    secrets = { 
+    secrets = {
       rdp-pass = {
         file = ./secrets/rdp-pass.age;
         mode = "600";
@@ -551,12 +605,30 @@ in
 
   xdg = {
     desktopEntries = {
-      "kvantummanager"    = { name = "Kvantum Manager"; noDisplay = true; };
-      "qt5ct"             = { name = "Qt5 Settings"; noDisplay = true; };
-      "qt6ct"             = { name = "Qt6 Settings"; noDisplay = true; };
-      "cups"              = { name = "Manage Printing"; noDisplay = true; };
-      "nixos-manual"      = { name = "NixOS Manual"; noDisplay = true; };
-      "blueman-adapters"  = { name = "Bluetooth Adapters"; noDisplay = true; }; 
+      "kvantummanager" = {
+        name = "Kvantum Manager";
+        noDisplay = true;
+      };
+      "qt5ct" = {
+        name = "Qt5 Settings";
+        noDisplay = true;
+      };
+      "qt6ct" = {
+        name = "Qt6 Settings";
+        noDisplay = true;
+      };
+      "cups" = {
+        name = "Manage Printing";
+        noDisplay = true;
+      };
+      "nixos-manual" = {
+        name = "NixOS Manual";
+        noDisplay = true;
+      };
+      "blueman-adapters" = {
+        name = "Bluetooth Adapters";
+        noDisplay = true;
+      };
     };
     configFile = {
       "xdg-desktop-portal/niri-portals.conf".text = ''
@@ -620,22 +692,29 @@ in
         "x-scheme-handler/unknown" = "zen-beta.desktop";
 
         "application/msword" = "onlyoffice-desktopeditors.desktop";
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document" = "onlyoffice-desktopeditors.desktop";
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.template" = "onlyoffice-desktopeditors.desktop";
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document" =
+          "onlyoffice-desktopeditors.desktop";
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.template" =
+          "onlyoffice-desktopeditors.desktop";
         "application/vnd.ms-word.document.macroenabled.12" = "onlyoffice-desktopeditors.desktop";
         "application/vnd.oasis.opendocument.text" = "onlyoffice-desktopeditors.desktop";
         "application/vnd.oasis.opendocument.text-template" = "onlyoffice-desktopeditors.desktop";
         "application/rtf" = "onlyoffice-desktopeditors.desktop";
         "application/vnd.ms-excel" = "onlyoffice-desktopeditors.desktop";
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" = "onlyoffice-desktopeditors.desktop";
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.template" = "onlyoffice-desktopeditors.desktop";
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" =
+          "onlyoffice-desktopeditors.desktop";
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.template" =
+          "onlyoffice-desktopeditors.desktop";
         "application/vnd.ms-excel.sheet.macroenabled.12" = "onlyoffice-desktopeditors.desktop";
         "application/vnd.oasis.opendocument.spreadsheet" = "onlyoffice-desktopeditors.desktop";
         "application/vnd.oasis.opendocument.spreadsheet-template" = "onlyoffice-desktopeditors.desktop";
         "application/vnd.ms-powerpoint" = "onlyoffice-desktopeditors.desktop";
-        "application/vnd.openxmlformats-officedocument.presentationml.presentation" = "onlyoffice-desktopeditors.desktop";
-        "application/vnd.openxmlformats-officedocument.presentationml.template" = "onlyoffice-desktopeditors.desktop";
-        "application/vnd.openxmlformats-officedocument.presentationml.slideshow" = "onlyoffice-desktopeditors.desktop";
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation" =
+          "onlyoffice-desktopeditors.desktop";
+        "application/vnd.openxmlformats-officedocument.presentationml.template" =
+          "onlyoffice-desktopeditors.desktop";
+        "application/vnd.openxmlformats-officedocument.presentationml.slideshow" =
+          "onlyoffice-desktopeditors.desktop";
         "application/vnd.oasis.opendocument.presentation" = "onlyoffice-desktopeditors.desktop";
 
         "image/png" = "swayimg.desktop";

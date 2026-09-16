@@ -1,14 +1,21 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
-  imports =
-    [
-      ./hardware-configuration.nix
-    ];
+  imports = [
+    ./hardware-configuration.nix
+  ];
 
   nix = {
     settings = {
-      experimental-features = [ "nix-command" "flakes" ];
+      experimental-features = [
+        "nix-command"
+        "flakes"
+      ];
       substituters = [
         "https://cache.nixos.org"
         "https://yukigram.github.io/yukigram"
@@ -115,7 +122,10 @@
   # USERS
   users.users.fkngoose = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" ];
+    extraGroups = [
+      "wheel"
+      "networkmanager"
+    ];
     packages = with pkgs; [ ];
     homeMode = "700";
     initialPassword = "1234"; # Don't forget to set a password with ‘passwd’
@@ -160,7 +170,13 @@
         {
           hwmon = "/sys/class/hwmon";
           name = "coretemp";
-          indices = [ 1 2 3 4 5 ];
+          indices = [
+            1
+            2
+            3
+            4
+            5
+          ];
         }
       ];
       fans = [
@@ -169,13 +185,41 @@
         }
       ];
       levels = [
-        [ 0 0 48 ]
-        [ 1 44 54 ]
-        [ 2 50 58 ]
-        [ 3 54 63 ]
-        [ 6 60 70 ]
-        [ 7 65 75 ]
-        [ "level full-speed" 75 32767 ]
+        [
+          0
+          0
+          48
+        ]
+        [
+          1
+          44
+          54
+        ]
+        [
+          2
+          50
+          58
+        ]
+        [
+          3
+          54
+          63
+        ]
+        [
+          6
+          60
+          70
+        ]
+        [
+          7
+          65
+          75
+        ]
+        [
+          "level full-speed"
+          75
+          32767
+        ]
       ];
     };
   };
@@ -198,7 +242,6 @@
     wantedBy = [ "multi-user.target" ];
     after = [ "sound.target" ];
   };
-
 
   # MISC
   age.identityPaths = [ "/home/fkngoose/.ssh/id_ed25519" ];
@@ -232,4 +275,3 @@
   system.stateVersion = "25.11"; # Did you read the comment?
 
 }
-

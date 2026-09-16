@@ -29,26 +29,34 @@
     };
   };
 
-  outputs = inputs@{ self, nixpkgs, nixos-hardware, home-manager, ... }: {
-    formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-tree;
-    nixosConfigurations.nixos-x390 = nixpkgs.lib.nixosSystem {
-      modules = [
-        ./configuration.nix
-        nixos-hardware.nixosModules.lenovo-thinkpad-x390
-        inputs.agenix.nixosModules.default
-        home-manager.nixosModules.home-manager
-        {
-          home-manager = {
-            backupFileExtension = "bak";
-            overwriteBackup = true;
-            useGlobalPkgs = true;
-            useUserPackages = true;
-            extraSpecialArgs = { inherit inputs; };
-            users.fkngoose = ./home.nix;
-          };
-        }
-      ];
-    };
+  outputs =
+    inputs@{
+      self,
+      nixpkgs,
+      nixos-hardware,
+      home-manager,
+      ...
+    }:
+    {
+      formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-tree;
+      nixosConfigurations.nixos-x390 = nixpkgs.lib.nixosSystem {
+        modules = [
+          ./configuration.nix
+          nixos-hardware.nixosModules.lenovo-thinkpad-x390
+          inputs.agenix.nixosModules.default
+          home-manager.nixosModules.home-manager
+          {
+            home-manager = {
+              backupFileExtension = "bak";
+              overwriteBackup = true;
+              useGlobalPkgs = true;
+              useUserPackages = true;
+              extraSpecialArgs = { inherit inputs; };
+              users.fkngoose = ./home.nix;
+            };
+          }
+        ];
+      };
 
-  };
+    };
 }
