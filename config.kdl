@@ -25,6 +25,9 @@ spawn-at-startup "dbus-update-activation-environment" "--systemd" "WAYLAND_DISPL
 spawn-at-startup "niri-layout-notify"
 spawn-at-startup "xwayland-satellite"
 spawn-at-startup "hyprsunset" "-t" "4500"
+spawn-at-startup "io.github.yukigram"
+spawn-at-startup "zen-beta"
+
 animations {
     slowdown 0.5
 }
