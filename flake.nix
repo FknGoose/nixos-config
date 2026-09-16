@@ -30,6 +30,7 @@
   };
 
   outputs = inputs@{ self, nixpkgs, nixos-hardware, home-manager, ... }: {
+    formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-tree;
     nixosConfigurations.nixos-x390 = nixpkgs.lib.nixosSystem {
       modules = [
         ./configuration.nix

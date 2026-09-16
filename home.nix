@@ -529,7 +529,7 @@ in
   home.packages = [
     pkgs.btop
     pkgs.freerdp
-    pkgs.nixpkgs-fmt
+    pkgs.nixfmt
     yukigram-sandbox
     zen-sandbox.config.env
     pkgs.onlyoffice-desktopeditors
