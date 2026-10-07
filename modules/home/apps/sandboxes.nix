@@ -34,6 +34,7 @@ let
       };
       bubblewrap = {
         bind.rw = [
+          (sloth.concat' sloth.runtimeDir "/doc")
           "/dev/shm"
           (sloth.concat' sloth.homeDir "/Downloads")
           (sloth.mkdir (sloth.concat' sloth.homeDir "/.config/zen"))
@@ -62,6 +63,7 @@ let
           bubblewrap = {
             bind.rw = [
               # Bind additional folders for convenience
+              (sloth.concat' sloth.runtimeDir "/doc")
               (sloth.concat' sloth.homeDir "/Downloads")
               (sloth.mkdir (sloth.concat' sloth.appDataDir "/io.github.yukigram"))
               (sloth.concat' sloth.xdgDataHome "/io.github.yukigram")

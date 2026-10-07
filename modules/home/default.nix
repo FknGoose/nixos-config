@@ -67,7 +67,15 @@ in
     };
     packages = [
       rdp-connect
-      pkgs.onlyoffice-desktopeditors
+      (pkgs.symlinkJoin {
+        name = "onlyoffice-desktopeditors-wrapped";
+        paths = [ pkgs.onlyoffice-desktopeditors ];
+        nativeBuildInputs = [ pkgs.makeBinaryWrapper ];
+        postBuild = ''
+      wrapProgram $out/bin/onlyoffice-desktopeditors \
+        --add-flags "--xdg-desktop-portal=default"
+        '';
+      })    
       pkgs.nixfmt
       pkgs.freerdp
       pkgs.tauon
