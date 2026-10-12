@@ -60,6 +60,9 @@ let
     (inputs.yukigram.d.${pkgs.stdenv.hostPlatform.system}.override (prev: {
       nixpak.yukigram = prev.nixpak.yukigram.override {
         customNixpakConfig = { sloth, ... }: {
+          dbus.policies = {
+            "org.freedesktop.portal.*" = "talk";
+          };
           bubblewrap = {
             bind.rw = [
               # Bind additional folders for convenience

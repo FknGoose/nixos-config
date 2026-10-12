@@ -228,20 +228,27 @@ in
     };
   };
 
-  systemd.user.services.swaybg = {
-    Unit = {
-      Description = "Swaybg wallpaper daemon";
-      After = [ "graphical-session.target" ];
-      PartOf = [ "graphical-session.target" ];
-      Requisite = [ "graphical-session.target" ];
+  systemd.user.services = {
+    xdg-document-portal = {
+      Install = {
+        WantedBy = [ "default.target" ];
+      };
     };
-    Service = {
-      ExecStart = "${pkgs.swaybg}/bin/swaybg -i ${config.stylix.image} -m fill";
-      Restart = "on-failure";
-      RestartSec = "1s";
-    };
-    Install = {
-      WantedBy = [ "graphical-session.target" ];
+    swaybg = {
+      Unit = {
+        Description = "Swaybg wallpaper daemon";
+        After = [ "graphical-session.target" ];
+        PartOf = [ "graphical-session.target" ];
+        Requisite = [ "graphical-session.target" ];
+      };
+      Service = {
+        ExecStart = "${pkgs.swaybg}/bin/swaybg -i ${config.stylix.image} -m fill";
+        Restart = "on-failure";
+        RestartSec = "1s";
+      };
+      Install = {
+        WantedBy = [ "graphical-session.target" ];
+      };
     };
   };
   xdg = {
