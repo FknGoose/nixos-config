@@ -66,7 +66,7 @@ in
       time = "en_IE.UTF-8";
     };
     packages = [
-      rdp-connect
+      rdp-connect 
       (pkgs.symlinkJoin {
         name = "onlyoffice-desktopeditors-wrapped";
         paths = [ pkgs.onlyoffice-desktopeditors ];

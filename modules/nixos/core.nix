@@ -43,4 +43,5 @@
   security.rtkit.enable = true;
   hardware.enableRedistributableFirmware = true;
   i18n.extraLocales = [ "en_IE.UTF-8/UTF-8" ];
+  services.udisks2.enable = true;
 }

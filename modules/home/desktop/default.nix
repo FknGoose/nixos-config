@@ -6,6 +6,34 @@ let
 
   record-border = pkgs.callPackage ../../../pkgs/record-border { };
 
+  fuzzel-disks = pkgs.writeShellScriptBin "fuzzel-disks" ''
+    set -euo pipefail
+
+    export PATH="${pkgs.coreutils}/bin:${pkgs.util-linux}/bin:${pkgs.gawk}/bin:${pkgs.jq}/bin:${pkgs.fuzzel}/bin:${pkgs.udisks2}/bin:$PATH"
+
+    CHOICE=$(lsblk -J -l -A -o PATH,LABEL,FSTYPE,SIZE,MOUNTPOINTS,RM,TRAN | jq -r '
+      .blockdevices[]
+      | select(.tran == "usb" or .rm == true)
+      | select(.fstype != null)
+      | (if .mountpoints[0] != null then "[UNMOUNT]" else "[MOUNT]" end) as $action
+      | "\($action) \(.path) \(.size) \(.label // "NoName")"
+    ' | fuzzel --dmenu --prompt="USB Disks > ")
+
+    [ -z "$CHOICE" ] && exit 0
+
+    ACTION=$(echo "$CHOICE" | awk '{print $1}')
+    TARGET=$(echo "$CHOICE" | awk '{print $2}')
+
+    case "$ACTION" in
+      "[MOUNT]")
+        udisksctl mount -b "$TARGET"
+        ;;
+      "[UNMOUNT]")
+        udisksctl unmount -b "$TARGET"
+        ;;
+    esac
+  '';
+
   niri-layout-notify = pkgs.writeShellScriptBin "niri-layout-notify" ''
     export PATH="${pkgs.niri}/bin:${pkgs.jq}/bin:${pkgs.libnotify}/bin:$PATH"
 
@@ -102,6 +130,7 @@ in
   ];
 
   home.packages = [
+    fuzzel-disks
     screenshot-area
     screen-record-toggle
     niri-layout-notify
@@ -276,6 +305,13 @@ in
       "blueman-adapters" = {
         name = "Bluetooth Adapters";
         noDisplay = true;
+      };
+      "fuzzel-disks" = {
+        name = "Disks (Mount/Unmount)";
+        genericName = "Disk Manager";
+        exec = "fuzzel-disks";
+        icon = "drive-removable-media";
+        categories = [ "System" "Utility" ];
       };
     };
     configFile = {
