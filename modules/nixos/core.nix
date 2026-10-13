@@ -7,12 +7,9 @@
         "flakes"
       ];
       substituters = [
-        "https://cache.nixos.org"
-        "https://yukigram.github.io/yukigram"
-        "https://yukigram-official.cachix.org"
-        "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
-        "https://mirrors.ustc.edu.cn/nix-channels/store"
-        "https://mirror.sjtu.edu.cn/nix-channels/store"
+        "https://cache.nixos.org?priority=10"
+        "https://yukigram.github.io/yukigram?priority=20"
+        "https://yukigram-official.cachix.org?priority=20"
       ];
       trusted-public-keys = [
         "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
