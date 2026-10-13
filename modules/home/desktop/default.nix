@@ -258,11 +258,6 @@ in
   };
 
   systemd.user.services = {
-    xdg-document-portal = {
-      Install = {
-        WantedBy = [ "default.target" ];
-      };
-    };
     swaybg = {
       Unit = {
         Description = "Swaybg wallpaper daemon";

@@ -40,4 +40,5 @@
     niri.enable = true;
   };
   xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-termfilechooser ];
+  systemd.user.services.xdg-document-portal.wantedBy = [ "default.target" ]; 
 }
