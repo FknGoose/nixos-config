@@ -11,6 +11,7 @@ binds {
     Mod+V           hotkey-overlay-title="Clipboard History" { spawn "sh" "-c" "cliphist list | fuzzel --dmenu | cliphist decode | wl-copy"; }
     Mod+P           hotkey-overlay-title="Bitwarden Passwords (Auto-type)" { spawn "rofi-rbw"; }
     Mod+Shift+P     hotkey-overlay-title="Bitwarden Passwords (Copy)" { spawn "rofi-rbw" "--action" "copy"; }
+    Mod+D      hotkey-overlay-title="System Menu" { spawn "sysmenu"; }
 
     XF86AudioRaiseVolume  allow-when-locked=true hotkey-overlay-title="Volume Up" { spawn "swayosd-client" "--output-volume" "raise"; }
     XF86AudioLowerVolume  allow-when-locked=true hotkey-overlay-title="Volume Down" { spawn "swayosd-client" "--output-volume" "lower"; }

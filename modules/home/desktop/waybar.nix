@@ -23,7 +23,6 @@
           "niri/language"
           "pulseaudio"
           "battery"
-          "tray"
           "custom/recorder"
         ];
         "niri/workspaces" = {
@@ -40,9 +39,10 @@
           format-ru = "RU";
         };
         "custom/recorder" = {
-          exec-if = "pgrep -f gpu-screen-recorder";
-          exec = "echo ' REC'";
-          interval = 1;
+          exec = "test -e $XDG_RUNTIME_DIR/recording && printf ' REC'";
+          interval = "once";
+          signal = 8;
+          hide-empty-text = true;
           on-click = "screen-record-toggle";
         };
         pulseaudio = {
@@ -67,17 +67,17 @@
           format-charging = "󱐥 {capacity}%";
           format-plugged = "󰚥 {capacity}%";
           format-icons = [
+            "󰂎"
             "󰁺"
             "󰁻"
             "󰁼"
             "󰁽"
             "󰁾"
             "󰁿"
-            "󰁀"
-            "󰁁"
-            "󰁂"
-            "󰁃"
-            "󰁄"
+            "󰂀"
+            "󰂁"
+            "󰂂"
+            "󰁹"
           ];
         };
 

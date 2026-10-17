@@ -38,7 +38,8 @@
       ...
     }:
     {
-      formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-tree;
+      formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-tree; 
+      packages.x86_64-linux = import ./pkgs { pkgs = nixpkgs.legacyPackages.x86_64-linux; };
       nixosConfigurations.nixos-x390 = nixpkgs.lib.nixosSystem {
         specialArgs = { inherit inputs; };
         modules = [

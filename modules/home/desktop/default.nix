@@ -4,35 +4,8 @@ let
 
   accentRed = "#${config.lib.stylix.colors.base08}";
 
-  record-border = pkgs.callPackage ../../../pkgs/record-border { };
-
-  fuzzel-disks = pkgs.writeShellScriptBin "fuzzel-disks" ''
-    set -euo pipefail
-
-    export PATH="${pkgs.coreutils}/bin:${pkgs.util-linux}/bin:${pkgs.gawk}/bin:${pkgs.jq}/bin:${pkgs.fuzzel}/bin:${pkgs.udisks2}/bin:$PATH"
-
-    CHOICE=$(lsblk -J -l -A -o PATH,LABEL,FSTYPE,SIZE,MOUNTPOINTS,RM,TRAN | jq -r '
-      .blockdevices[]
-      | select(.tran == "usb" or .rm == true)
-      | select(.fstype != null)
-      | (if .mountpoints[0] != null then "[UNMOUNT]" else "[MOUNT]" end) as $action
-      | "\($action) \(.path) \(.size) \(.label // "NoName")"
-    ' | fuzzel --dmenu --prompt="USB Disks > ")
-
-    [ -z "$CHOICE" ] && exit 0
-
-    ACTION=$(echo "$CHOICE" | awk '{print $1}')
-    TARGET=$(echo "$CHOICE" | awk '{print $2}')
-
-    case "$ACTION" in
-      "[MOUNT]")
-        udisksctl mount -b "$TARGET"
-        ;;
-      "[UNMOUNT]")
-        udisksctl unmount -b "$TARGET"
-        ;;
-    esac
-  '';
+  local = import ../../../pkgs { inherit pkgs; };
+  record-border = local.record-border;
 
   niri-layout-notify = pkgs.writeShellScriptBin "niri-layout-notify" ''
     export PATH="${pkgs.niri}/bin:${pkgs.jq}/bin:${pkgs.libnotify}/bin:$PATH"
@@ -87,15 +60,18 @@ let
 
   screen-record-toggle = pkgs.writeShellScriptBin "screen-record-toggle" ''
     export PATH="${pkgs.slurp}/bin:${pkgs.procps}/bin:${pkgs.libnotify}/bin:${pkgs.coreutils}/bin:$PATH"
+    readonly STATE="''${XDG_RUNTIME_DIR:-/tmp}/recording"
 
     stop_recording() {
       pkill -f -SIGINT gpu-screen-recorder 2>/dev/null || true
       pkill -x record-border 2>/dev/null || true
+      rm -f "$STATE"
+      pkill -RTMIN+8 waybar 2>/dev/null || true
     }
 
-    if pgrep -f gpu-screen-recorder >/dev/null; then
+    if [ -e "$STATE" ]; then
       stop_recording
-      notify-send -a record-notify -t 3000 "GPU Screen Recorder" "Recording saved" 2>/dev/null || true
+      notify-send -a record-notify -t 3000 "GPU Screen Recorder" "Recording saved"
       exit 0
     fi
 
@@ -110,14 +86,13 @@ let
     mkdir -p "$OUT_DIR"
     OUT_FILE="$OUT_DIR/video-$(date +%Y-%m-%d_%H-%M-%S).mp4"
 
-    ${record-border}/bin/record-border "$X" "$Y" "$W" "$H" "${accentRed}" &
-    notify-send -a record-notify -t 2500 "GPU Screen Recorder" "Recording of ''${GEOM} started" 2>/dev/null || true
+    touch "$STATE"
+    pkill -RTMIN+8 waybar 2>/dev/null || true
 
+    ${record-border}/bin/record-border "$X" "$Y" "$W" "$H" "${accentRed}" &
+    notify-send -a record-notify -t 2500 "GPU Screen Recorder" "Recording of ''${GEOM} started"
     ${pkgs.gpu-screen-recorder}/bin/gpu-screen-recorder \
-      -w "$GEOM" \
-      -f 60 \
-      -a default_output \
-      -o "$OUT_FILE"
+      -w "$GEOM" -f 60 -a default_output -o "$OUT_FILE"
 
     stop_recording
   '';
@@ -127,10 +102,10 @@ in
 
   imports = [
     ./waybar.nix
+    ./sysmenu.nix
   ];
 
   home.packages = [
-    fuzzel-disks
     screenshot-area
     screen-record-toggle
     niri-layout-notify
@@ -300,13 +275,6 @@ in
       "blueman-adapters" = {
         name = "Bluetooth Adapters";
         noDisplay = true;
-      };
-      "fuzzel-disks" = {
-        name = "Disks (Mount/Unmount)";
-        genericName = "Disk Manager";
-        exec = "fuzzel-disks";
-        icon = "drive-removable-media";
-        categories = [ "System" "Utility" ];
       };
     };
     configFile = {

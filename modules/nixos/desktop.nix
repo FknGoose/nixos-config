@@ -14,8 +14,7 @@
 
   services = {
     printing.enable = true;
-
-
+    elephant.enable = true;
     greetd = {
       enable = true;
       settings = {
