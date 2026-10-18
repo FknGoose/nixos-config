@@ -35,10 +35,12 @@
     packages = with pkgs; [ ];
     homeMode = "700";
     initialPassword = "1234"; # Don't forget to set a password with ‘passwd’
+    shell = pkgs.zsh;
   }; 
   nixpkgs.config.allowUnfree = true;
   security.rtkit.enable = true;
   hardware.enableRedistributableFirmware = true;
   i18n.extraLocales = [ "en_IE.UTF-8/UTF-8" ];
   services.udisks2.enable = true;
+  programs.zsh.enable = true;
 }

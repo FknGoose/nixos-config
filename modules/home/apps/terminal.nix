@@ -38,7 +38,22 @@ in
       TERMINAL = "kitty";
     };
   };
-  programs = { 
+  programs = {
+    zsh = {
+      enable = true;
+      autocd = true;
+      autosuggestion.enable = true;
+      syntaxHighlighting.enable = true;
+      history = {
+        size = 50000;
+        share = true;
+      };
+      initContent = ''
+    zstyle ':completion:*' menu select
+    PROMPT='[%n@%m:%F{blue}%~%f]
+%(?.%F{green}.%F{red})%(#.#.$)%f '
+      '';
+    };
     kitty = {
       enable = true;
       settings = {
