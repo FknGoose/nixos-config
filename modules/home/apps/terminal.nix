@@ -75,7 +75,8 @@ in
 
     yazi = {
       enable = true;
-      enableBashIntegration = true;
+      enableZshIntegration = true;
+      shellWrapperName = "y";
       settings = {
         mgr = {
           show_hidden = true;
