@@ -109,7 +109,9 @@ in
     screenshot-area
     screen-record-toggle
     niri-layout-notify
-    pkgs.pavucontrol
+    pkgs.wifitui
+    pkgs.bluetui
+    pkgs.pulsemixer
     pkgs.gsimplecal
     pkgs.swayimg
     pkgs.grim
@@ -203,8 +205,6 @@ in
     };
     swayosd.enable = true;
     hyprpolkitagent.enable = true;
-    blueman-applet.enable = true;
-    network-manager-applet.enable = true;
     cliphist = {
       enable = true;
       allowImages = true;

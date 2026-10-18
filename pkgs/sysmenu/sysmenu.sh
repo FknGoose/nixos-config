@@ -1,8 +1,6 @@
 readonly TAB=$'\t'
 
-readonly EL_BLUETOOTH=bluetooth
 readonly EL_SYMBOLS=symbols
-readonly EL_CALC=calc
 
 have() { command -v -- "$1" >/dev/null 2>&1; }
 
@@ -57,6 +55,20 @@ ask() {
 
 dot() { if [ "$1" = 1 ]; then printf '●'; else printf '○'; fi; }
 
+run_detached() { setsid -f "$@" >/dev/null 2>&1; }
+
+run_in_term() {
+  if have kitty; then
+    run_detached kitty --class sysmenu -e "$@"
+  else
+    notify "sysmenu" "No terminal found"
+  fi
+}
+
+bt_field() {
+  bluetoothctl info "$1" 2>/dev/null |
+    sed -n "s/^[[:space:]]*$2:[[:space:]]*//p" | head -n1
+}
 # ───────────────────────────────────────────── Wi-Fi ──
 
 wifi_active_uuid() {
@@ -82,9 +94,10 @@ wifi_connect() {
   case $security in "" | "--") open=yes ;; esac
 
   if [ "$open" = no ] && [[ $security == *802.1X* ]]; then
-    notify "Wi-Fi" "Enterprise network: use the NetworkManager applet from the tray"
+    notify "Wi-Fi" "Enterprise network: use 'Open Wi-Fi manager' in the Wi-Fi menu"
     return 0
   fi
+
 
   # A stored profile is enough for open networks and for networks whose secret
   # NetworkManager already saved.
@@ -160,12 +173,18 @@ wifi_menu() {
       entries+=("net:$name" "$(dot "${inuse[$name]:-0}") $name   ${signal[$name]}%   ${security[$name]:-open}")
     done < <(for name in "${!signal[@]}"; do printf '%s\t%s\n' "${signal[$name]}" "$name"; done |
       sort -t "$TAB" -k1,1nr)
-    entries+=(rescan "Rescan" off "Turn Wi-Fi off")
-
+    entries+=(
+      rescan "Rescan"
+      wifitui "Open Wi-Fi manager (wifitui)"
+      nmtui "Open text UI (nmtui)"
+      off "Turn Wi-Fi off"
+    )
     choice=$(menu "Wi-Fi" "${entries[@]}") || return 0
     case $choice in
       rescan) rescan=yes ;;
-      off) try nmcli radio wifi off >/dev/null || : ;;
+      off) try nmcli radio wifi off >/dev/null || : ;; 
+      wifitui) run_in_term wifitui; finish ;;
+      nmtui) run_in_term nmtui; finish ;;
       net:*)
         ssid=${choice#net:}
         if [ -n "${inuse[$ssid]:-}" ]; then
@@ -191,14 +210,21 @@ el_items() {
   jq -cs '[.. | objects | select(has("identifier"))]' <<<"$raw"
 }
 
+
+# el_pick <prompt> <items-json> [icons]
+# With `icons`, the item's `icon` field is prepended. For the symbols provider that
+# field holds the glyph itself; for others it is a freedesktop icon name, so it is
+# opt-in rather than automatic.
 el_pick() {
-  local prompt=$1 items=$2 index
-  index=$(jq -r '
+  local prompt=$1 items=$2 icons=${3:-no} index
+  index=$(jq -r --arg icons "$icons" '
       to_entries[]
       | [ (.key | tostring),
-          ((.value.text // .value.identifier | tostring)
-           + (if (.value.subtext // "") != "" then "   " + .value.subtext else "" end)
-           | gsub("[\t\n]"; " ")) ]
+          ( (if $icons == "yes" and (.value.icon // "") != ""
+             then (.value.icon | tostring) + "  " else "" end)
+            + (.value.text // .value.identifier | tostring)
+            + (if (.value.subtext // "") != "" then "   " + .value.subtext else "" end)
+            | gsub("[\t\n]"; " ") ) ]
       | @tsv' <<<"$items" | pick "$prompt") || return 1
   if ! [[ $index =~ ^[0-9]+$ ]]; then return 1; fi
   jq -c --argjson i "$index" '.[$i]' <<<"$items"
@@ -210,63 +236,133 @@ el_activate() {
   try elephant activate "$1;$id;$3;${4:-};" >/dev/null
 }
 
-bluetooth_menu() {
-  while :; do
-    local items item
-    if ! items=$(el_items "$EL_BLUETOOTH" "" 200); then
-      notify "Bluetooth" "Elephant is not responding"
-      return 0
-    fi
-    if [ "$(jq length <<<"$items")" -eq 0 ]; then
-      notify "Bluetooth" "No devices"
-      return 0
-    fi
-    item=$(el_pick "Bluetooth" "$items") || return 0
 
-    local -a actions=() entries=()
-    local a action device
-    mapfile -t actions < <(jq -r '.actions // [] | .[]' <<<"$item")
-    for a in "${actions[@]}"; do entries+=("$a" "${a^}"); done
-    if [ "${#entries[@]}" -eq 0 ]; then
-      notify "Bluetooth" "No actions available for this device"
-      continue
+bluetooth_menu() {
+  have bluetoothctl || { notify "Bluetooth" "bluetoothctl not found"; return 0; }
+  while :; do
+    local powered
+    powered=$(bluetoothctl show 2>/dev/null |
+      sed -n 's/^[[:space:]]*Powered:[[:space:]]*//p' | head -n1)
+
+    local -a entries=()
+    if [ "$powered" = yes ]; then
+      entries+=("power-off" "Turn Bluetooth off")
+    else
+      entries+=("power-on" "Turn Bluetooth on")
     fi
-    device=$(jq -r '.text // .identifier | tostring' <<<"$item")
-    action=$(menu "$device" "${entries[@]}") || continue
-    if el_activate "$EL_BLUETOOTH" "$item" "$action"; then
-      finish "Bluetooth" "${action^}: $device"
-    fi
+
+    local mac name conn mark
+    while read -r mac name; do
+      [ -n "$mac" ] || continue
+      conn=$(bt_field "$mac" Connected)
+      mark="○"
+      [ "$conn" = yes ] && mark="●"
+      entries+=("dev:$mac" "$mark ${name:-$mac}")
+    done < <(lc bluetoothctl devices | sed -n 's/^Device //p')
+
+    entries+=(
+      "manager" "Open Bluetooth manager (bluetui)"
+      "scan" "Scan for 8 seconds"
+      "back" "← Back"
+    )
+
+    local choice
+    choice=$(menu "Bluetooth" "${entries[@]}") || return 0
+    case $choice in
+      power-off) quiet bluetoothctl power off; finish ;;
+      power-on) quiet bluetoothctl power on; finish ;;
+      scan) notify "Bluetooth" "Scanning for 8 seconds"; quiet bluetoothctl --timeout 8 scan on ;;
+      manager) run_in_term bluetui; finish ;;
+      back) return 0 ;;
+      dev:*) bt_device "${choice#dev:}" ;;
+    esac
   done
 }
 
-symbols_menu() {
-  local items item action
-  # fuzzel does the filtering, so fetch the whole list up front.
-  if ! items=$(el_items "$EL_SYMBOLS" "" 100000); then
-    notify "Symbols" "Elephant is not responding"
-    return 0
-  fi
-  item=$(el_pick "Symbols" "$items") || return 0
-  action=$(jq -r '(.actions // [])[0] // "copy"' <<<"$item")
-  if el_activate "$EL_SYMBOLS" "$item" "$action"; then finish; fi
+bt_device() {
+  local mac=$1 name
+  name=$(bt_field "$mac" Name)
+  while :; do
+    local conn trust clabel tlabel
+    conn=$(bt_field "$mac" Connected)
+    trust=$(bt_field "$mac" Trusted)
+    clabel="Connect"
+    [ "$conn" = yes ] && clabel="Disconnect"
+    tlabel="Mark as trusted"
+    [ "$trust" = yes ] && tlabel="Remove trust"
+
+    local choice
+    choice=$(menu "BT ${name:-$mac}" \
+      "switch" "$clabel" \
+      "pair" "Pair" \
+      "trust" "$tlabel" \
+      "cli" "Open bluetoothctl" \
+      "remove" "Remove device" \
+      "back" "← Back") || return 0
+    case $choice in
+      switch)
+        if [ "$conn" = yes ]; then quiet bluetoothctl disconnect "$mac"
+        else quiet bluetoothctl connect "$mac"; fi
+        finish
+        ;;
+      pair) quiet bluetoothctl pair "$mac"; finish ;;
+      trust)
+        if [ "$trust" = yes ]; then quiet bluetoothctl untrust "$mac"
+        else quiet bluetoothctl trust "$mac"; fi
+        finish
+        ;;
+      cli) run_in_term bluetoothctl ;;
+      remove) quiet bluetoothctl remove "$mac"; finish ;;
+      back) return 0 ;;
+    esac
+  done
 }
 
+
+symbols_menu() {
+  have elephant || { notify "Symbols" "elephant not found"; return 0; }
+  local q items item
+  q=$(ask "Symbols:") || return 0
+  [ -n "$q" ] || return 0
+  if ! items=$(el_items "$EL_SYMBOLS" "$q" 500); then
+    notify "Symbols" "Elephant is not responding (try: sysmenu check)"
+    return 0
+  fi
+  if [ "$(jq length <<<"$items")" -eq 0 ]; then
+    notify "Symbols" "No match for '$q'"
+    return 0
+  fi
+  item=$(el_pick "Symbols" "$items" icons) || return 0
+  # The provider exposes exactly one action, run_cmd, which pipes the glyph to wl-copy.
+  if el_activate "$EL_SYMBOLS" "$item" run_cmd; then finish; fi
+}
+
+
 calc_eval() {
-  local items
-  items=$(el_items "$EL_CALC" "$1" 1) || return 1
-  jq -r '.[0].text // empty' <<<"$items"
+  # Mirrors what Elephant's calc provider runs internally, minus the async round-trip
+  # that would otherwise show "calculating..." instead of the answer.
+  lc qalc -t -s "digit grouping 2" "$1" 2>/dev/null | head -n1
 }
 
 calc_menu() {
-  local expr result
+  local expr result choice
   while :; do
     expr=$(ask "=") || return 0
-    if [ -z "$expr" ]; then return 0; fi
-    if result=$(calc_eval "$expr") && [ -n "$result" ]; then
-      printf '%s' "$result" | wl-copy
-      finish "$expr = $result" "Copied to clipboard"
+    [ -n "$expr" ] || return 0
+    if ! result=$(calc_eval "$expr") || [ -z "$result" ]; then
+      notify "Calculator" "Cannot evaluate: $expr"
+      continue
     fi
-    notify "Calculator" "Cannot evaluate: $expr"
+    # Show the answer as a pickable entry so it can be read, not just copied.
+    choice=$(menu "Calculator" \
+      copy "$result" \
+      edit "Edit expression" \
+      back "← Back") || return 0
+    case $choice in
+      copy) printf '%s' "$result" | wl-copy; finish ;;
+      edit) continue ;;
+      back) return 0 ;;
+    esac
   done
 }
 
@@ -294,16 +390,24 @@ power_menu() {
   while :; do
     local current bat prompt
     current=$(lc tlpctl get 2>/dev/null) || current="?"
-    prompt="Power: $current"
+    prompt="Power"
     if bat=$(battery); then
-      local capacity status start stop
+      local capacity status start stop sym
       capacity=$(sysval "$bat/capacity")
       status=$(sysval "$bat/status")
       start=$(sysval "$bat/charge_control_start_threshold")
       stop=$(sysval "$bat/charge_control_end_threshold")
-      prompt+=" · ${capacity:-?}% ${status,,}"
-      if [ -n "$stop" ]; then prompt+=" · limit ${start:-0}–${stop}%"; fi
+      case ${status,,} in
+        charging) sym="⚡" ;;
+        discharging) sym="↓" ;;
+        full) sym="✓" ;;
+        *) sym="·" ;;
+      esac
+      # fuzzel truncates long prompts; keep this short
+      prompt="${capacity:-?}% $sym"
+      [ -n "$stop" ] && prompt+=" ${start:-0}–${stop}"
     fi
+
 
     local -a entries=()
     local id label on
@@ -462,18 +566,56 @@ tray_menu() {
   exec tray-host pick
 }
 
+
+# ──────────────────────────────────────────── Session ──
+
+session_menu() {
+  local choice
+  choice=$(menu "Session" \
+    "lock" "Lock screen" \
+    "suspend" "Suspend" \
+    "logout" "Log out of niri" \
+    "reboot" "Reboot" \
+    "poweroff" "Power off" \
+    "back" "← Back") || return 0
+  case $choice in
+    lock) run_detached sh -c 'rbw lock >/dev/null 2>&1 || true; exec swaylock -f' ;;
+    suspend) run_detached systemctl suspend ;;
+    logout) run_detached niri msg action quit --skip-confirmation ;;
+    reboot) run_detached systemctl reboot ;;
+    poweroff) run_detached systemctl poweroff ;;
+    back) return 0 ;;
+  esac
+  finish
+}
+
+# ───────────────────────────────────────────── Runner ──
+
+runner_menu() {
+  local cmd
+  cmd=$(ask "Run:") || return 0
+  [ -n "$cmd" ] || return 0
+  # Detached, like Elephant's runner: no TTY, so prefix with `kitty -e` if you need one.
+  run_detached sh -c "$cmd"
+  finish
+}
+
 # ──────────────────────────────────────────── Router ──
+
 
 main_menu() {
   while :; do
     local -a entries=()
     if have tray-host; then entries+=(tray "Tray"); fi
     if have nmcli; then entries+=(wifi "Wi-Fi"); fi
-    if have elephant; then entries+=(bluetooth "Bluetooth"); fi
+    if have bluetoothctl; then entries+=(bluetooth "Bluetooth"); fi
     if have tlpctl; then entries+=(power "Power & battery"); fi
     if have niri; then entries+=(display "Displays"); fi
     if have udisksctl; then entries+=(disks "Removable drives"); fi
-    if have elephant; then entries+=(symbols "Symbols & emoji" calc "Calculator"); fi
+    if have elephant; then entries+=(symbols "Symbols & emoji"); fi
+    entries+=(calc "Calculator")
+    entries+=(run "Run command")
+    entries+=(session "Session")
 
     local choice
     choice=$(menu "System" "${entries[@]}") || return 0
@@ -486,9 +628,26 @@ main_menu() {
       disks) disks_menu ;;
       symbols) symbols_menu ;;
       calc) calc_menu ;;
+      run) runner_menu ;;
+      session) session_menu ;;
     esac
   done
 }
+
+check() {
+  printf '== providers ==\n'
+  timeout 3 elephant listproviders 2>&1 || printf 'elephant listproviders failed\n'
+  printf '\n== binaries ==\n'
+  local b
+  for b in niri nmcli tlpctl udisksctl bluetoothctl elephant tray-host \
+           qalc wifitui bluetui pulsemixer kitty; do
+    printf '%-16s %s\n' "$b" "$(command -v -- "$b" || printf 'MISSING')"
+  done
+  printf '\n== symbols;arrow;5;false ==\n'
+  timeout 5 elephant query --json 'symbols;arrow;5;false' 2>&1 | head -c 800
+  printf '\n'
+}
+
 
 usage() {
   cat <<'EOF'
@@ -496,9 +655,11 @@ Usage: sysmenu [SECTION]
 
 Sections:
   tray  wifi  bluetooth  power  display  disks  symbols
+  run  session  check
   calc [EXPRESSION]   without EXPRESSION opens a prompt, with it prints the result
 EOF
 }
+
 
 case "${1:-}" in
   "") main_menu ;;
@@ -509,6 +670,9 @@ case "${1:-}" in
   display) display_menu ;;
   disks) disks_menu ;;
   symbols) symbols_menu ;;
+  run | runner) runner_menu ;;
+  session) session_menu ;;
+  check) check ;;
   calc)
     shift
     if [ $# -gt 0 ]; then calc_eval "$*"; else calc_menu; fi

@@ -55,7 +55,7 @@
               "󰕾"
             ];
           };
-          on-click = "pavucontrol";
+          on-click = "kitty --class sysmenu -e pulsemixer";
         };
 
         battery = {

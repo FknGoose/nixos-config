@@ -7,6 +7,7 @@
   jq,
   fuzzel,
   libnotify,
+  libqalculate,
   pinentry-gnome3,
   util-linux,
   wl-clipboard,
@@ -27,6 +28,7 @@ writeShellApplication {
     jq
     fuzzel
     libnotify
+    libqalculate
     pinentry-gnome3
     util-linux
     wl-clipboard
