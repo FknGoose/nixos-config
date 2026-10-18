@@ -9,6 +9,7 @@ fonts.fontconfig = {
   stylix = {
     enable = true;
     autoEnable = true;
+    overlays.enable = false;
     base16Scheme = "${pkgs.base16-schemes}/share/themes/brewer.yaml";
     image = ./wallpaper.png;
     polarity = "dark";
