@@ -37,6 +37,7 @@
   programs = {
     gpu-screen-recorder.enable = true;
     niri.enable = true;
+    steam.enable = true;
   };
   xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-termfilechooser ];
   systemd.user.services.xdg-document-portal.wantedBy = [ "default.target" ]; 
