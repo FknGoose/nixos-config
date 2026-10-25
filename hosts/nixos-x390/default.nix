@@ -39,6 +39,7 @@
   };
   
   services = {
+    throttled.enable = false;
     tlp = {
       enable = true;
       pd.enable = true;
