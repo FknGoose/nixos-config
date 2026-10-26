@@ -77,10 +77,16 @@ in
         '';
       })    
       pkgs.nixfmt
-      pkgs.freerdp
-      pkgs.tauon
-    ];
+      pkgs.freerdp 
+      (pkgs.tauon.overrideAttrs (oldAttrs: {
+        makeWrapperArgs = oldAttrs.makeWrapperArgs
+          ++ [ "--prefix" "PYTHONPATH" ":" "${placeholder "out"}/share/tauon" ];
 
+        preFixup = ''
+    makeWrapperArgs+=(--set GI_TYPELIB_PATH "$GI_TYPELIB_PATH")
+        '';
+      })) # NixOS/nixpkgs#577587
+    ];
   };
 
   programs = {
